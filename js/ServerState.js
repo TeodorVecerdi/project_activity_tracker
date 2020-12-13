@@ -1,23 +1,13 @@
-interface Project {
-    name: string;
-    id: number;
-}
-
-interface TimeRange {
-    start: number;
-    end: number;
-}
-
 class ServerState {
-    private readonly activeProjects: Record<number, Partial<TimeRange>>;
-    private readonly activeBreaks: Record<number, Partial<TimeRange>>;
-    public projects: Array<Project>;
-    public projectsDirty: boolean;
     constructor() {
         this.activeProjects = {};
         this.activeBreaks = {};
         this.projects = [];
         this.projectsDirty = true;
+    }
+
+    removeProject(project_id) {
+        this.projects = this.projects.filter(project => project.id != project_id);
     }
 
     startActive(project_id){

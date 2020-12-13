@@ -43,6 +43,7 @@
             }
         });
     });
+
     /*
 
                 */
@@ -52,22 +53,22 @@
             url: '/get-projects',
             type: 'get',
             success: data => {
-                data.forEach(project => {
+                data.projects.forEach(project => {
+                    let isActive = data.activeProjects.hasOwnProperty(project.id);
+                    let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
                     $('#projects').append(`
-                   <div class="project-item mb-2">
-                    <div class="row">
-                        <span class="h4 col-10 project-title text-default">${project.name}</span>
-                        <button type="button"
-                                class="col-3 btn btn-primary btn-floating removeProject align-self-start mx-4"
-                                data-project-id="${project.id}">
+                    <div class="project-item mb-2 row" data-project-id="${project.id}">
+                        <span class="h4 col-2 project-title align-self-center ${isActive ? isBreakActive ? 'font-italic dark-grey-text' : 'text-success' : 'dark-grey-text'}">${project.name}</span>
+                        <button type="button" class="col-2 btn btn-outline-success" title="Set active">Set active</button>
+                        <button type="button" class="col-2 btn btn-outline-grey" title="Start break">Start break</button>
+                        <button type="button" class="col-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
                             <i class="fa fa-trash-alt"></i>
                         </button>
                     </div>
-                </div>
                     `);
                 });
                 $('.removeProject').on('click', (event) => {
-                    let projectId = $(event.currentTarget).data('project-id');
+                    let projectId = $(event.currentTarget).parent().data('project-id');
                     console.log(projectId);
                     $.ajax({
                         url: '/remove-project',

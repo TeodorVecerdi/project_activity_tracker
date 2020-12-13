@@ -1,9 +1,4 @@
 let mysql = require("mysql");
-const username = "teodor";
-const password = "6RABDh5PLIOD6m8R";
-const database = "project_activity_tracker"
-const url = `mongodb+srv://${username}:${password}@cluster0.59los.mongodb.net/`
-
 
 class Database {
     constructor() {
@@ -14,6 +9,7 @@ class Database {
             database: "project_activity_tracker"
         });
         this.con.connect();
+        console.log("Connected database");
     }
 
     connect() {
@@ -36,6 +32,7 @@ class Database {
     }
 
     getProjects(callback) {
+        console.log("Retrieved projects from DB");
         this.con.query('select * from projects', (err, res, fields) => {
             if(err) throw err;
             let projects = [];
