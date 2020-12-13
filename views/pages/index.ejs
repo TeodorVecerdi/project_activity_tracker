@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+<body>
+<% include ../partials/navbar.ejs %>
+<div class="container">
+    <form class="row w-50  mt-5" id="add-project-form" method="post">
+        <div class="col-10 pr-2">
+            <div class="form-outline">
+                <input type="text" id="projectName" name="projectName" class="form-control"/>
+                <label class="form-label" for="projectName">Project Name</label>
+            </div>
+        </div>
+        <div class="col-2 pl-2">
+            <button id="submit-button" type="submit" class="btn btn-primary">+</button>
+        </div>
+    </form>
+    <section class="mt-5">
+        <h1 class="title">Projects</h1>
+        <div id="projects">
+        </div>
+    </section>
+</div>
+
+<% include ../partials/footer.ejs %>
+
+<script>
+    $(() => {
+        refreshProjects();
+    });
+    $('#add-project-form').on('submit', (evt) => {
+        evt.preventDefault();
+        let formData = $('#add-project-form').serialize();
+        $.ajax({
+            url: '/add-project',
+            type: 'post',
+            data: formData,
+            success: () => {
+                $('#add-project-form').trigger('reset');
+                refreshProjects();
+            }
+        });
+    });
+    /*
+
+                */
+    function refreshProjects() {
+        $('#projects').html("");
+        $.ajax({
+            url: '/get-projects',
+            type: 'get',
+            success: data => {
+                data.forEach(project => {
+                    $('#projects').append(`
+                   <div class="project-item mb-2">
+                    <div class="row">
+                        <span class="h4 col-10 project-title text-default">${project.name}</span>
+                        <button type="button"
+                                class="col-3 btn btn-primary btn-floating removeProject align-self-start mx-4"
+                                data-project-id="${project.id}">
+                            <i class="fa fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                    `);
+                });
+                $('.removeProject').on('click', (event) => {
+                    let projectId = $(event.currentTarget).data('project-id');
+                    console.log(projectId);
+                    $.ajax({
+                        url: '/remove-project',
+                        type: 'post',
+                        data: {id: projectId},
+                        success: () => {
+                            refreshProjects();
+                        }
+                    })
+                });
+            },
+            error: err => {
+                console.error(err);
+            }
+        })
+    }
+</script>
+</body>
+</html>
