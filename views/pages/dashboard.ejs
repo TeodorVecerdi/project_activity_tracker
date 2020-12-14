@@ -102,6 +102,19 @@
         if (callback) callback();
     }
 
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
     function onLoadEntries(data, callback) {
         let entriesContainer = $('#entriesContainer');
         let entries = data.entries;
@@ -127,7 +140,8 @@
                         </tr>`
         });
         entriesContainer.html(
-            `<table class="table table-dark text-primary">
+            `<div class="btn btn-outline-primary csv-download">Export as CSV</div>
+            <table class="table table-dark text-primary entries">
                   <thead>
                     <tr>
                       <th class="fw-bold text-uppercase" scope="col">Type</th>
@@ -140,6 +154,10 @@
                   <tbody>${tableEntries}</tbody>
                 </table>`
         );
+
+        $('.csv-download').on('click', () => {
+            download("hello.txt","This is the content of my file :)");
+        });
 
         $('.entryComment').on('dblclick', event => {
             let parent = $(event.currentTarget).parent();

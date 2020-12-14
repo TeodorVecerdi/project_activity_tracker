@@ -3,15 +3,30 @@ let router = express.Router();
 let database = require('../js/Database');
 let serverState = require('../js/ServerState');
 
+let fs = require('fs');
+let path = require('path');
+const { v4: uuidv4 } = require('uuid');
+
+
 router.get('/get', (req, res, next) => {
     if (serverState.projectsDirty) {
         database.getProjects(projects => {
             serverState.projects = projects;
             serverState.projectsDirty = false;
-            res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks, selectedProject: serverState.selectedProject});
+            res.status(200).send({
+                projects: serverState.projects,
+                activeProjects: serverState.activeProjects,
+                activeBreaks: serverState.activeBreaks,
+                selectedProject: serverState.selectedProject
+            });
         });
     } else {
-        res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks, selectedProject: serverState.selectedProject});
+        res.status(200).send({
+            projects: serverState.projects,
+            activeProjects: serverState.activeProjects,
+            activeBreaks: serverState.activeBreaks,
+            selectedProject: serverState.selectedProject
+        });
     }
 })
 
@@ -31,12 +46,12 @@ router.post('/remove', (req, res) => {
 router.post('/change-active', (req, res) => {
     let projectId = req.body.id;
     let isActive = serverState.isActive(projectId);
-    if(isActive)
+    if (isActive)
         serverState.endActive(projectId, activeProject => {
-            if(serverState.selectedProject == projectId) serverState.entriesDirty = true;
+            if (serverState.selectedProject == projectId) serverState.entriesDirty = true;
             database.addEntry(projectId, 0, activeProject, () => {
                 // Also end break is break was active.
-                if(serverState.isBreakActive(projectId)) {
+                if (serverState.isBreakActive(projectId)) {
                     serverState.endBreak(projectId, activeBreak => {
                         activeBreak.end = activeProject.end;
                         database.addEntry(projectId, 1, activeBreak, () => {
@@ -57,9 +72,9 @@ router.post('/change-active', (req, res) => {
 router.post('/change-break', (req, res) => {
     let projectId = req.body.id;
     let isBreakActive = serverState.isBreakActive(projectId);
-    if(isBreakActive)
+    if (isBreakActive)
         serverState.endBreak(projectId, copy => {
-            if(serverState.selectedProject == projectId) serverState.entriesDirty = true;
+            if (serverState.selectedProject == projectId) serverState.entriesDirty = true;
             database.addEntry(projectId, 1, copy, () => {
                 res.status(200).end();
             });
@@ -79,7 +94,7 @@ router.post('/select-project', (req, res) => {
 
 router.get('/get-entries', (req, res) => {
     let selectedProject = serverState.selectedProject;
-    if(selectedProject === undefined) res.status(404).end();
+    if (selectedProject === undefined) res.status(404).end();
 
     if (serverState.entriesDirty) {
         database.getEntries(selectedProject, entries => {
@@ -98,9 +113,28 @@ router.post('/update-entry-comment', (req, res) => {
 
     database.updateEntryComment(entryId, commentText, () => {
         let changedIndex = serverState.entries.findIndex(entry => entry.id == entryId);
-        if(changedIndex === -1) serverState.entriesDirty = true;
+        if (changedIndex === -1) serverState.entriesDirty = true;
         else serverState.entries[changedIndex].comment = commentText;
         res.status(200).end();
+    });
+})
+
+router.get('/export-entries', (req, res) => {
+    let filename = `entries_${serverState.projects.find(project => serverState.selectedProject == project.id).name.replace(' ', '_')}_${uuidv4()}.csv`;
+    let absPath = path.join(__dirname, '/my_files/', filename);
+    let relPath = path.join('./my_files', filename);
+
+    fs.writeFile(relPath, 'File content', (err) => {
+        if (err) throw err;
+
+        res.download(absPath, (err) => {
+            if (err) throw err;
+
+            fs.unlink(relPath, (err) => {
+                if (err) throw err;
+                console.log('FILE [' + filename + '] REMOVED!');
+            });
+        });
     });
 })
 
