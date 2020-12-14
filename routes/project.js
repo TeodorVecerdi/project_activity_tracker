@@ -32,12 +32,13 @@ router.post('/change-active', (req, res) => {
     let projectId = req.body.id;
     let isActive = serverState.isActive(projectId);
     if(isActive)
-        serverState.endActive(projectId, copy => {
-            database.addEntry(projectId, 0, copy, () => {
+        serverState.endActive(projectId, activeProject => {
+            database.addEntry(projectId, 0, activeProject, () => {
                 // Also end break is break was active.
                 if(serverState.isBreakActive(projectId)) {
-                    serverState.endBreak(projectId, copy => {
-                        database.addEntry(projectId, 1, copy, () => {
+                    serverState.endBreak(projectId, activeBreak => {
+                        activeBreak.end = activeProject.end;
+                        database.addEntry(projectId, 1, activeBreak, () => {
                             res.status(200).end();
                         });
                     });
