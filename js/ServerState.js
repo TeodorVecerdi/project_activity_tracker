@@ -4,9 +4,11 @@ class ServerState {
         this.activeBreaks = {};
         this.projects = [];
         this.projectsDirty = true;
+        this.selectedProject = undefined;
     }
 
     removeProject(project_id) {
+        if(this.selectedProject == project_id) this.selectedProject = undefined;
         this.projects = this.projects.filter(project => project.id != project_id);
     }
 
@@ -42,6 +44,9 @@ class ServerState {
     }
     isBreakActive(project_id){
         return this.activeBreaks.hasOwnProperty(project_id);
+    }
+    selectProject(project_id) {
+        this.selectedProject = project_id;
     }
 }
 

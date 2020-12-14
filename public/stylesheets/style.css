@@ -1,3 +1,17 @@
+.text-shadow {
+    text-shadow: 0 2px 5px rgba(0,0,0,0.16);
+}
+
+.bg-dark-lighter {
+    background-color: #161b1d !important
+}
+
+.border-dark {
+    border-color: #212121;
+}
+
+/* floating button */
+
 .btn-floating, [class*=btn-outline-].btn-floating {
     border-radius: 50% !important;
     padding: 0 !important;
@@ -14,42 +28,37 @@
     line-height: calc(2.3125rem * 1.25) !important;
 }
 
-.text-shadow {
-    text-shadow: 0 2px 5px rgba(0,0,0,0.16);
-}
-
-/*
 .btn-floating.btn-lg, .btn-group-lg > .btn-floating.btn {
-    width: 2.8125rem !important;
-    height: 2.8125rem !important;
+    width: calc(calc(2.8125rem * 1.25) * 1.25) !important;
+    height: calc(2.8125rem * 1.25) !important;
 }
 
 .btn-floating.btn-lg .fab, .btn-floating.btn-lg .far, .btn-floating.btn-lg .fas, .btn-group-lg > .btn-floating.btn .fab, .btn-group-lg > .btn-floating.btn .far, .btn-group-lg > .btn-floating.btn .fas {
-    width: 2.8125rem !important;
-    line-height: 2.8125rem !important;
+    width: calc(2.8125rem * 1.25) !important;
+    line-height: calc(2.8125rem * 1.25) !important;
 }
 
 .btn-floating.btn-sm, .btn-group-sm > .btn-floating.btn {
-    width: 1.8125rem !important;
-    height: 1.8125rem !important;
+    width: calc(1.8125rem * 1.25) !important;
+    height: calc(1.8125rem * 1.25) !important;
 }
 
 .btn-floating.btn-sm .fab, .btn-floating.btn-sm .far, .btn-floating.btn-sm .fas, .btn-group-sm > .btn-floating.btn .fab, .btn-group-sm > .btn-floating.btn .far, .btn-group-sm > .btn-floating.btn .fas {
-    width: 1.8125rem !important;
-    line-height: 1.8125rem !important;
+    width: calc(1.8125rem * 1.25) !important;
+    line-height: calc(1.8125rem * 1.25) !important;
 }
 
 [class*=btn-outline-].btn-floating .fab, [class*=btn-outline-].btn-floating .far, [class*=btn-outline-].btn-floating .fas {
-    width: 2.0625rem !important;
-    line-height: 2.0625rem !important;
+    width: calc(2.0625rem * 1.25) !important;
+    line-height: calc(2.0625rem * 1.25) !important;
 }
 
 .btn-group-lg > .btn[class*=btn-outline-].btn-floating .fab, .btn-group-lg > .btn[class*=btn-outline-].btn-floating .far, .btn-group-lg > .btn[class*=btn-outline-].btn-floating .fas, [class*=btn-outline-].btn-floating.btn-lg .fab, [class*=btn-outline-].btn-floating.btn-lg .far, [class*=btn-outline-].btn-floating.btn-lg .fas {
-    width: 2.5625rem !important;
-    line-height: 2.5625rem !important;
+    width: calc(2.5625rem * 1.25) !important;
+    line-height: calc(2.5625rem * 1.25) !important;
 }
 
 .btn-group-sm > .btn[class*=btn-outline-].btn-floating .fab, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .far, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .fas, [class*=btn-outline-].btn-floating.btn-sm .fab, [class*=btn-outline-].btn-floating.btn-sm .far, [class*=btn-outline-].btn-floating.btn-sm .fas {
-    width: 1.5625rem !important;
-    line-height: 1.5625rem !important;
-}*/
+    width: calc(1.5625rem * 1.25) !important;
+    line-height: calc(1.5625rem * 1.25) !important;
+}

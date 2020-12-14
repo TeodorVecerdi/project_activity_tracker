@@ -8,10 +8,10 @@ router.get('/get', (req, res, next) => {
         database.getProjects(projects => {
             serverState.projects = projects;
             serverState.projectsDirty = false;
-            res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks});
+            res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks, selectedProject: serverState.selectedProject});
         });
     } else {
-        res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks});
+        res.status(200).send({projects: serverState.projects, activeProjects: serverState.activeProjects, activeBreaks: serverState.activeBreaks, selectedProject: serverState.selectedProject});
     }
 })
 

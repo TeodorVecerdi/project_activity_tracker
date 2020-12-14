@@ -3,18 +3,20 @@
 <head>
     <% include ../partials/head.ejs %>
 </head>
-<body class="bg-dark">
+<body class="bg-dark-lighter">
 <% include ../partials/navbar-home.ejs %>
 <div class="container">
-    <form class="row w-50  mt-5" id="add-project-form" method="post">
+    <form class="row w-50 mt-5" id="add-project-form" method="post">
         <div class="col-10 pr-2">
             <div class="form-floating bg-dark">
-                <input type="text" class="form-control bg-dark text-light" id="projectName" name="projectName" placeholder="Praaaaoject name">
+                <input type="text" class="form-control bg-dark text-light border-primary" id="projectName" name="projectName" placeholder="Project name">
                 <label for="projectName" class="text-light">Project name</label>
             </div>
         </div>
         <div class="col-2">
-            <button id="submit-button" type="submit" class="btn btn-dark-green">+</button>
+            <button id="submit-button" type="submit" class="btn btn-floating btn-primary" title="Create">
+                <i class="fa fa-plus"></i>
+            </button>
         </div>
     </form>
     <section class="mt-5">
@@ -27,6 +29,8 @@
 <% include ../partials/footer.ejs %>
 
 <script>
+    let activeTimers = {};
+    let breakTimers = {};
     $(() => {
         refreshProjects();
     });
@@ -53,15 +57,15 @@
                 data.projects.forEach(project => {
                     let isActive = data.activeProjects.hasOwnProperty(project.id);
                     let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
-                    let titleClasses = isActive ? isBreakActive ? 'fst-italic text-default' : 'text-success' : 'grey-text';
-                    let activeButtonClasses = `btn ${isActive ? 'btn-dark-green' : 'btn-outline-dark-green'}`;
-                    let breakButtonClasses = `btn ${isBreakActive ? 'btn' : 'btn-outline'}-${isActive ? "default" : "blue-grey disabled"}`;
+                    let titleClasses = isActive ? isBreakActive ? 'fst-italic text-secondary' : 'text-primary' : 'grey-text';
+                    let activeButtonClasses = `btn ${isActive ? 'btn-primary' : 'btn-outline-primary'}`;
+                    let breakButtonClasses = `btn ${isBreakActive ? 'btn' : 'btn-outline'}-${isActive ? "secondary" : "blue-grey disabled"}`;
                     $('#projects').append(`
-                    <div class="project-item mb-2 row" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
-                        <span class="h4 col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}</span>
+                    <div class="project-item mb-2 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
+                        <span class="h4 col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name} <span class="fw-light text-primary">(Active: 00:00:00)</span> <span class="fw-light text-secondary">(On break: 00:00:00)</span></span>
                         <button type="button" class="col-2 setActiveInactive ${activeButtonClasses}" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>
                         <button type="button" class="col-2 startEndBreak ${breakButtonClasses}" title="${isBreakActive ? "End" : "Start"} break">${isBreakActive ? "End" : "Start"} break</button>
-                        <button type="button" class="col-1 btn btn-dark-green btn-floating removeProject float-right align-self-end" title="Remove">
+                        <button type="button" class="col-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
                             <i class="fa fa-trash-alt"></i>
                         </button>
                     </div>

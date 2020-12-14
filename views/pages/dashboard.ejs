@@ -3,26 +3,67 @@
 <head>
     <% include ../partials/head.ejs %>
 </head>
-<body class="bg-dark">
+<body class="bg-dark-lighter">
 <% include ../partials/navbar-dashboard.ejs %>
 
 <div class="container">
-    <div class="row">
-        <div class="col-2">Selected project:</div>
-        <div class="col-4" id="selectedProject">None</div>
-        <select class="col-6" name="selectProject" id="selectProject">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
+    <div class="row text-light mt-3 align-items-center">
+        <div class="col-3 text-end">Selected project:</div>
+        <div class="col-2 fw-bold text-primary" id="selectedProject"></div>
+        <div class="col-7">
+            <select aria-label="Select project" class="form-select bg-dark text-light border-primary" name="selectProject" id="selectProject"></select>
+        </div>
+    </div>
+    <div class="row table-view">
+
     </div>
 </div>
 
 <% include ../partials/footer.ejs %>
 
+<script src="/javascripts/utils.js"></script>
 <script>
+    let projectMap = {};
+    let selectInput = $('#selectProject');
+    let selectedProjectText = $('#selectedProject');
+
+    $(() => {
+        refreshProjects();
+
+        selectInput.on('change', function () {
+            selectedProjectText.text(projectMap[this.value].name);
+        });
+    });
+
+    function refreshProjects() {
+        $.ajax({
+            url: '/project/get',
+            type: 'get',
+            success: data => {
+                onLoadProjects(data);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadProjects(data) {
+
+        // reset
+        projectMap = {};
+        selectInput.html("");
+
+        selectInput.append(`<option value='' ${data.selectedProject === undefined ? 'selected' : ''} disabled>Select a project</option>`);
+        data.projects.forEach(project => {
+            projectMap[project.id] = project;
+            selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
+        });
+
+        if (projectMap.hasOwnProperty(data.selectedProject)) {
+            selectedProjectText.text(projectMap[data.selectedProject].name);
+        } else selectedProjectText.text("None");
+    }
 </script>
 </body>
 </html>

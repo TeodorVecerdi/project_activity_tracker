@@ -6,12 +6,15 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@popperjs/core": "^2.5.4",
     "body-parser": "^1.19.0",
+    "bootstrap": "^5.0.0-beta1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "mdbootstrap": "^4.19.2",
     "mongodb": "^3.6.3",
     "morgan": "~1.9.1",
     "mysql": "^2.18.1"
