@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+<body class="bg-dark">
+<% include ../partials/navbar-dashboard.ejs %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-2">Selected project:</div>
+        <div class="col-4" id="selectedProject">None</div>
+        <select class="col-6" name="selectProject" id="selectProject">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+
+<script>
+</script>
+</body>
+</html>

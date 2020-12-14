@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 
-let routes = require('./routes');
+let routes = require('./routes/_router');
 routes.forEach(route => app.use(route.url, route.router));
 
 // catch 404 and forward to error handler
