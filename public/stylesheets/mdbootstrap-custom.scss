@@ -13,8 +13,11 @@ $secondary-color: $secondary !default;
 $secondary-color-dark: darken($secondary, 10) !default;
 $success-color: $success !default;
 $success-color-dark: darken($success, 10) !default;
+$special-color: $dark-blue;
+$special-color-dark: darken($dark-blue, 10);
 
-$grey-lighten-2: $light-text;
+$grey-darken-4: $dark;
+$grey-lighten-2: $light;
 $test: #00dde5;
 $test-dark: #0b3b3c;
 
@@ -28,21 +31,24 @@ $test-dark: #0b3b3c;
 $material-colors: map-merge(
                 (
                         "test": $test,
-                        "test-dark": $test-dark
+                        "test-dark": $test-dark,
+                        "dark-blue": $dark-blue
                 ),
                 $material-colors
 );
 $basic-mdb-colors: map-merge(
                 (
                         "test": $test,
-                        "test-dark": $test-dark
+                        "test-dark": $test-dark,
+                        "dark-blue": $dark-blue
                 ),
                 $basic-mdb-colors
 );
 $mdb-colors: map-merge(
                 (
                         "test": $test,
-                        "test-dark": $test-dark
+                        "test-dark": $test-dark,
+                        "dark-blue": $dark-blue
                 ),
                 $mdb-colors
 );

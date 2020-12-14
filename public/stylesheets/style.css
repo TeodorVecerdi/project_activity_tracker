@@ -2,12 +2,12 @@
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
 }
 
-.bg-dark-lighter {
-    background-color: #161b1d !important
-}
-
 .border-dark {
     border-color: #212121;
+}
+
+.cursor-pointer {
+    cursor: pointer !important;
 }
 
 .float-right {

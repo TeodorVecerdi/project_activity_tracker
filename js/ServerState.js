@@ -4,6 +4,8 @@ class ServerState {
         this.activeBreaks = {};
         this.projects = [];
         this.projectsDirty = true;
+        this.entries = [];
+        this.entriesDirty = true;
         this.selectedProject = undefined;
     }
 

@@ -3,7 +3,7 @@
 <head>
     <% include ../partials/head.ejs %>
 </head>
-<body class="bg-dark-lighter">
+<body class="bg-dark-blue">
 <% include ../partials/navbar-dashboard.ejs %>
 
 <div class="container">
@@ -11,10 +11,11 @@
         <div class="col-3 text-end">Selected project:</div>
         <div class="col-2 fw-bold text-primary" id="selectedProject"></div>
         <div class="col-7">
-            <select aria-label="Select project" class="form-select bg-dark text-light border-primary" name="selectProject" id="selectProject"></select>
+            <select aria-label="Select project" class="form-select bg-dark text-light border-primary"
+                    name="selectProject" id="selectProject"></select>
         </div>
     </div>
-    <div class="row table-view">
+    <div id="entriesContainer" class="row mt-5">
 
     </div>
 </div>
@@ -24,23 +25,37 @@
 <script src="/javascripts/utils.js"></script>
 <script>
     let projectMap = {};
+    let activeProject = undefined;
     let selectInput = $('#selectProject');
     let selectedProjectText = $('#selectedProject');
 
     $(() => {
-        refreshProjects();
+        refreshProjects(() => {
+            getEntries();
+        });
+
 
         selectInput.on('change', function () {
-            selectedProjectText.text(projectMap[this.value].name);
+            activeProject = this.value;
+            $.ajax({
+                url: '/project/select-project',
+                type: 'post',
+                data: {id: this.value},
+                success: () => {
+                    refreshProjects(() => {
+                        getEntries();
+                    });
+                }
+            });
         });
     });
 
-    function refreshProjects() {
+    function refreshProjects(callback) {
         $.ajax({
             url: '/project/get',
             type: 'get',
             success: data => {
-                onLoadProjects(data);
+                onLoadProjects(data, callback);
             },
             error: err => {
                 console.error(err);
@@ -48,7 +63,25 @@
         });
     }
 
-    function onLoadProjects(data) {
+    function getEntries(callback) {
+        let entriesContainer = $('#entriesContainer');
+        if (activeProject === undefined) {
+            entriesContainer.html(`<span class="h2 col-12 text-center text-secondary">No project selected</span>`)
+        } else {
+            $.ajax({
+                url: '/project/get-entries',
+                type: 'get',
+                success: data => {
+                    onLoadEntries(data, callback)
+                },
+                error: err => {
+                    console.error(err);
+                }
+            });
+        }
+    }
+
+    function onLoadProjects(data, callback) {
         // reset
         projectMap = {};
         selectInput.html("");
@@ -57,11 +90,97 @@
         data.projects.forEach(project => {
             projectMap[project.id] = project;
             selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
+
+            if (data.selectedProject == project.id)
+                activeProject = project.id;
         });
 
         if (projectMap.hasOwnProperty(data.selectedProject)) {
             selectedProjectText.text(projectMap[data.selectedProject].name);
         } else selectedProjectText.text("None");
+
+        if (callback) callback();
+    }
+
+    function onLoadEntries(data, callback) {
+        let entriesContainer = $('#entriesContainer');
+        let entries = data.entries;
+        let tableEntries = '';
+
+        entries.forEach(entry => {
+            let durationTimestamp = entry.end - entry.start;
+            let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+            let duration = new Date(durationTimestamp + timezoneOffset);
+            let start = new Date(entry.start - 0).toTimeString().split(' ');
+            let end = new Date(entry.end - 0).toTimeString().split(' ');
+            let durationString = duration.toTimeString().split(' ')[0]
+
+            tableEntries += `<tr data-entry-id="${entry.id}" data-entry-has-comment=${(entry.comment != undefined && entry.comment != "")}>
+                            <td>${entry.type}</td>
+                            <td>${start[0]} ${start[1]}</td>
+                            <td>${end[0]} ${end[1]}</td>
+                            <td>${durationString}</td>
+                            <td class="entryComment">
+                                <span class="entryCommentText user-select-none cursor-pointer" style="white-space: pre-wrap;">${entry.comment || '<i>No comment</i>'}</span>
+                                <form class="d-none entryCommentForm"><textarea class="form-control" name="comment" aria-label="Comment"></textarea><input type="submit" style="position: absolute; left: -9999px"/></form>
+                            </td>
+                        </tr>`
+        });
+        entriesContainer.html(
+            `<table class="table table-dark text-primary">
+                  <thead>
+                    <tr>
+                      <th class="fw-bold text-uppercase" scope="col">Type</th>
+                      <th class="fw-bold text-uppercase" scope="col">Start</th>
+                      <th class="fw-bold text-uppercase" scope="col">End</th>
+                      <th class="fw-bold text-uppercase" scope="col">Duration</th>
+                      <th class="fw-bold text-uppercase" scope="col">Comment</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tableEntries}</tbody>
+                </table>`
+        );
+
+        $('.entryComment').on('dblclick', event => {
+            let parent = $(event.currentTarget).parent();
+            let commentText = parent.find('.entryCommentText');
+            let commentForm = parent.find('.entryCommentForm');
+            let commentInput = commentForm.find('textarea.form-control');
+            let id = parent.data("entry-id");
+
+            commentText.addClass('d-none');
+            commentForm.removeClass('d-none');
+            if (parent.data("entry-has-comment"))
+                commentInput.val(commentText.text());
+
+            $(commentInput).keydown(function (e) {
+                if (e.ctrlKey && e.keyCode == 13) {
+                    $(commentForm).trigger('submit');
+                }
+            });
+
+            $(commentForm).on('submit', formEvent => {
+                formEvent.preventDefault();
+                let newCommentText = commentInput.val();
+                commentInput.val("");
+                commentForm.addClass('d-none');
+                commentText.removeClass('d-none');
+
+                if(newCommentText === "" && !parent.data("entry-has-comment")) return;
+
+                commentText.text(newCommentText);
+                $.ajax({
+                    url: '/project/update-entry-comment',
+                    type: 'post',
+                    data: {id: id, comment: newCommentText},
+                    success: () => {
+                        getEntries();
+                    }
+                });
+            })
+        });
+
+        if (callback) callback();
     }
 </script>
 </body>

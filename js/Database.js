@@ -32,7 +32,26 @@ class Database {
         });
     }
 
-    removeProject(id, callback) {
+    getEntries(projectId, callback) {
+        console.log("Retrieved entries from DB");
+        this.con.query('select * from entries where PROJECT_ID = ?', [projectId], (err, res) => {
+            if(err) throw err;
+            let entries = [];
+            res.forEach(entry => {
+                entries.push({id: entry.ID, type: entry.TYPE, start: entry.START, end: entry.END, comment: entry.COMMENT});
+            });
+
+            if(callback) callback(entries);
+        });
+    }
+    updateEntryComment(entryId, comment, callback) {
+        this.con.query('UPDATE entries SET COMMENT=? WHERE ID=?', [comment, entryId], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
+        });
+    }
+
+        removeProject(id, callback) {
         this.con.query('delete from projects where ID = ?', [id], (err, res) => {
             if(err) throw err;
             if(callback) callback();
@@ -41,7 +60,7 @@ class Database {
 
     getProjects(callback) {
         console.log("Retrieved projects from DB");
-        this.con.query('select * from projects', (err, res, fields) => {
+        this.con.query('select * from projects', (err, res) => {
             if(err) throw err;
             let projects = [];
             res.forEach(project => {
