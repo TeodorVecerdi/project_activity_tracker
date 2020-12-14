@@ -6,10 +6,11 @@
 <body class="bg-dark-lighter">
 <% include ../partials/navbar-home.ejs %>
 <div class="container">
-    <form class="row w-50 mt-5" id="add-project-form" method="post">
+    <form class="row mt-5" id="add-project-form" method="post">
         <div class="col-10 pr-2">
             <div class="form-floating bg-dark">
-                <input type="text" class="form-control bg-dark text-light border-primary" id="projectName" name="projectName" placeholder="Project name">
+                <input type="text" class="form-control bg-dark text-light border-primary" id="projectName"
+                       name="projectName" placeholder="Project name">
                 <label for="projectName" class="text-light">Project name</label>
             </div>
         </div>
@@ -33,6 +34,9 @@
     let breakTimers = {};
     $(() => {
         refreshProjects();
+        setInterval(() => {
+            updateTimers();
+        }, 250);
     });
     $('#add-project-form').on('submit', (evt) => {
         evt.preventDefault();
@@ -49,20 +53,39 @@
     });
 
     function refreshProjects() {
-        $('#projects').html("");
         $.ajax({
             url: '/project/get',
             type: 'get',
             success: data => {
-                data.projects.forEach(project => {
-                    let isActive = data.activeProjects.hasOwnProperty(project.id);
-                    let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
-                    let titleClasses = isActive ? isBreakActive ? 'fst-italic text-secondary' : 'text-primary' : 'grey-text';
-                    let activeButtonClasses = `btn ${isActive ? 'btn-primary' : 'btn-outline-primary'}`;
-                    let breakButtonClasses = `btn ${isBreakActive ? 'btn' : 'btn-outline'}-${isActive ? "secondary" : "blue-grey disabled"}`;
-                    $('#projects').append(`
+                onLoadProjects(data);
+            },
+            error: err => {
+                console.error(err);
+            }
+        })
+    }
+
+    function onLoadProjects(data) {
+        // Reset
+        $('#projects').html("");
+        activeTimers = {};
+        breakTimers = {};
+
+        data.projects.forEach(project => {
+            let isActive = data.activeProjects.hasOwnProperty(project.id);
+            let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
+            let titleClasses = isActive ? isBreakActive ? 'fst-italic text-secondary' : 'text-primary' : 'grey-text';
+            let activeButtonClasses = `btn ${isActive ? 'btn-primary' : 'btn-outline-primary'}`;
+            let breakButtonClasses = `btn ${isBreakActive ? 'btn' : 'btn-outline'}-${isActive ? "secondary" : "blue-grey disabled"}`;
+
+            let activeTimer = isActive ? `<span id="activeTimer-${project.id}" class="fw-light text-primary">Active: 00:00:00</span>` : "";
+            let breakTimer = isBreakActive ? `<span id="breakTimer-${project.id}" class="fw-light text-secondary">On break: 00:00:00</span>` : "";
+            let timers = isActive||isBreakActive ? `<span class="text-light fst-normal float-right">(${activeTimer}${isActive&&isBreakActive?',&nbsp;':''}${breakTimer})</span>` : '';
+            $('#projects').append(`
                     <div class="project-item mb-2 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
-                        <span class="h4 col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name} <span class="fw-light text-primary">(Active: 00:00:00)</span> <span class="fw-light text-secondary">(On break: 00:00:00)</span></span>
+                        <span class="h4 col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
+                            ${timers}
+                        </span>
                         <button type="button" class="col-2 setActiveInactive ${activeButtonClasses}" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>
                         <button type="button" class="col-2 startEndBreak ${breakButtonClasses}" title="${isBreakActive ? "End" : "Start"} break">${isBreakActive ? "End" : "Start"} break</button>
                         <button type="button" class="col-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
@@ -70,50 +93,66 @@
                         </button>
                     </div>
                     `);
-                });
-                $('.removeProject').on('click', (event) => {
-                    let projectId = $(event.currentTarget).parent().data('project-id');
-                    //console.log(projectId);
-                    $.ajax({
-                        url: '/project/remove',
-                        type: 'post',
-                        data: {id: projectId},
-                        success: () => {
-                            refreshProjects();
-                        }
-                    });
-                });
 
-                $('.setActiveInactive').on('click', event => {
-                    let parent = $(event.currentTarget).parent();
-                    let projectId = parent.data("project-id");
-                        $.ajax({
-                        url: '/project/change-active',
-                        type: 'post',
-                        data: {id: projectId},
-                        success: () => {
-                            refreshProjects();
-                        }
-                    });
-                    console.log($(event.currentTarget).html())
-                });
-                $('.startEndBreak').on('click', event => {
-                    let parent = $(event.currentTarget).parent();
-                    let projectId = parent.data("project-id");
-                    $.ajax({
-                        url: '/project/change-break',
-                        type: 'post',
-                        data: {id: projectId},
-                        success: () => {
-                            refreshProjects();
-                        }
-                    });
-                });
-            },
-            error: err => {
-                console.error(err);
-            }
-        })
+            if(isActive) activeTimers[project.id] = data.activeProjects[project.id].start;
+            if(isBreakActive) breakTimers[project.id] = data.activeBreaks[project.id].start;
+        });
+        $('.removeProject').on('click', (event) => {
+            let projectId = $(event.currentTarget).parent().data('project-id');
+            //console.log(projectId);
+            $.ajax({
+                url: '/project/remove',
+                type: 'post',
+                data: {id: projectId},
+                success: () => {
+                    refreshProjects();
+                }
+            });
+        });
+
+        $('.setActiveInactive').on('click', event => {
+            let parent = $(event.currentTarget).parent();
+            let projectId = parent.data("project-id");
+            $.ajax({
+                url: '/project/change-active',
+                type: 'post',
+                data: {id: projectId},
+                success: () => {
+                    refreshProjects();
+                }
+            });
+            console.log($(event.currentTarget).html())
+        });
+        $('.startEndBreak').on('click', event => {
+            let parent = $(event.currentTarget).parent();
+            let projectId = parent.data("project-id");
+            $.ajax({
+                url: '/project/change-break',
+                type: 'post',
+                data: {id: projectId},
+                success: () => {
+                    refreshProjects();
+                }
+            });
+        });
+        updateTimers();
+    }
+
+    function updateTimers() {
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let currentTime = Date.now() + timezoneOffset;
+        for(let [key, value] of Object.entries(activeTimers)) {
+            let displayedValue = value - value % 1000;
+            let difference = new Date(currentTime - displayedValue);
+            let passed = difference.toTimeString().split(' ')[0];
+            $(`#activeTimer-${key}`).text(`Active: ${passed}`)
+        }
+        for(let [key, value] of Object.entries(breakTimers)) {
+            let displayedValue = value - value % 1000;
+            let difference = new Date(currentTime-displayedValue);
+            let passed = difference.toTimeString().split(' ')[0];
+            $(`#breakTimer-${key}`).text(`On break: ${passed}`)
+        }
     }
 </script>
 </body>

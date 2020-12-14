@@ -1,5 +1,5 @@
 .text-shadow {
-    text-shadow: 0 2px 5px rgba(0,0,0,0.16);
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
 }
 
 .bg-dark-lighter {
@@ -8,6 +8,10 @@
 
 .border-dark {
     border-color: #212121;
+}
+
+.float-right {
+    float: right !important
 }
 
 /* floating button */
