@@ -24,6 +24,14 @@ class Database {
         })
     }
 
+    addEntry(projectId, entryType, entryData, callback) {
+        let concreteEntryType = entryType == 0 ? 'WORK' : 'BREAK';
+        this.con.query('insert into entries (PROJECT_ID, TYPE, START, END) values (?,?,?,?)', [projectId, concreteEntryType, entryData.start, entryData.end], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
+        });
+    }
+
     removeProject(id, callback) {
         this.con.query('delete from projects where ID = ?', [id], (err, res) => {
             if(err) throw err;

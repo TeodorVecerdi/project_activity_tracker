@@ -14,6 +14,8 @@
     line-height: calc(2.3125rem * 1.25) !important;
 }
 
+
+/*
 .btn-floating.btn-lg, .btn-group-lg > .btn-floating.btn {
     width: 2.8125rem !important;
     height: 2.8125rem !important;
@@ -47,4 +49,4 @@
 .btn-group-sm > .btn[class*=btn-outline-].btn-floating .fab, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .far, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .fas, [class*=btn-outline-].btn-floating.btn-sm .fab, [class*=btn-outline-].btn-floating.btn-sm .far, [class*=btn-outline-].btn-floating.btn-sm .fas {
     width: 1.5625rem !important;
     line-height: 1.5625rem !important;
-}
+}*/

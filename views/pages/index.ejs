@@ -34,7 +34,7 @@
         evt.preventDefault();
         let formData = $('#add-project-form').serialize();
         $.ajax({
-            url: '/add-project',
+            url: '/project/create',
             type: 'post',
             data: formData,
             success: () => {
@@ -44,23 +44,20 @@
         });
     });
 
-    /*
-
-                */
     function refreshProjects() {
         $('#projects').html("");
         $.ajax({
-            url: '/get-projects',
+            url: '/project/get',
             type: 'get',
             success: data => {
                 data.projects.forEach(project => {
                     let isActive = data.activeProjects.hasOwnProperty(project.id);
                     let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
                     $('#projects').append(`
-                    <div class="project-item mb-2 row" data-project-id="${project.id}">
+                    <div class="project-item mb-2 row" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
                         <span class="h4 col-2 project-title align-self-center ${isActive ? isBreakActive ? 'font-italic dark-grey-text' : 'text-success' : 'dark-grey-text'}">${project.name}</span>
-                        <button type="button" class="col-2 btn btn-outline-success" title="Set active">Set active</button>
-                        <button type="button" class="col-2 btn btn-outline-grey" title="Start break">Start break</button>
+                        <button type="button" class="col-2 btn btn-outline-success setActiveInactive" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>
+                        <button type="button" class="col-2 btn btn-outline-${isActive ? "default" : "grey"} startEndBreak${!isActive ? " disabled" : ""}" title="${isBreakActive ? "End" : "Start"} break">${isBreakActive ? "End" : "Start"} break</button>
                         <button type="button" class="col-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
                             <i class="fa fa-trash-alt"></i>
                         </button>
@@ -69,15 +66,41 @@
                 });
                 $('.removeProject').on('click', (event) => {
                     let projectId = $(event.currentTarget).parent().data('project-id');
-                    console.log(projectId);
+                    //console.log(projectId);
                     $.ajax({
-                        url: '/remove-project',
+                        url: '/project/remove',
                         type: 'post',
                         data: {id: projectId},
                         success: () => {
                             refreshProjects();
                         }
-                    })
+                    });
+                });
+
+                $('.setActiveInactive').on('click', event => {
+                    let parent = $(event.currentTarget).parent();
+                    let projectId = parent.data("project-id");
+                        $.ajax({
+                        url: '/project/change-active',
+                        type: 'post',
+                        data: {id: projectId},
+                        success: () => {
+                            refreshProjects();
+                        }
+                    });
+                    console.log($(event.currentTarget).html())
+                });
+                $('.startEndBreak').on('click', event => {
+                    let parent = $(event.currentTarget).parent();
+                    let projectId = parent.data("project-id");
+                    $.ajax({
+                        url: '/project/change-break',
+                        type: 'post',
+                        data: {id: projectId},
+                        success: () => {
+                            refreshProjects();
+                        }
+                    });
                 });
             },
             error: err => {
