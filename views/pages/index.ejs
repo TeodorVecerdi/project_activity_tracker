@@ -83,7 +83,7 @@
             let timers = isActive||isBreakActive ? `<span class="text-light fst-normal float-right">(${activeTimer}${isActive&&isBreakActive?',&nbsp;':''}${breakTimer})</span>` : '';
             $('#projects').append(`
                     <div class="project-item mb-2 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
-                        <span class="h4 col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
+                        <span class="h4-responsive fw-bold col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
                             ${timers}
                         </span>
                         <button type="button" class="col-2 setActiveInactive ${activeButtonClasses}" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>

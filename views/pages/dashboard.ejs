@@ -140,8 +140,10 @@
                         </tr>`
         });
         entriesContainer.html(
-            `<div class="btn btn-outline-primary csv-download">Export as CSV</div>
-            <table class="table table-dark text-primary entries">
+            `<div class="row">
+                <div class="mx-0 col-2 btn btn-outline-primary csv-download">Export as CSV</div>
+            </div>
+            <table class="table table-responsive table-dark text-primary entries">
                   <thead>
                     <tr>
                       <th class="fw-bold text-uppercase" scope="col">Type</th>
@@ -156,7 +158,19 @@
         );
 
         $('.csv-download').on('click', () => {
-            download("hello.txt","This is the content of my file :)");
+            let csv = [];
+            let rows = $("table.entries tr");
+
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+
+                for (var j = 0; j < cols.length; j++)
+                    row.push(cols[j].innerText);
+
+                csv.push(row.join(","));
+            }
+
+            download(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.csv`,csv.join('\n'));
         });
 
         $('.entryComment').on('dblclick', event => {
@@ -171,7 +185,14 @@
             if (parent.data("entry-has-comment"))
                 commentInput.val(commentText.text());
 
+            commentInput.focus();
+
             $(commentInput).keydown(function (e) {
+                if(e.keyCode == 27) {
+                    commentInput.val("");
+                    commentForm.addClass('d-none');
+                    commentText.removeClass('d-none');
+                }
                 if (e.ctrlKey && e.keyCode == 13) {
                     $(commentForm).trigger('submit');
                 }
@@ -187,6 +208,7 @@
                 if(newCommentText === "" && !parent.data("entry-has-comment")) return;
 
                 commentText.text(newCommentText);
+                console.log(newCommentText);
                 $.ajax({
                     url: '/project/update-entry-comment',
                     type: 'post',
