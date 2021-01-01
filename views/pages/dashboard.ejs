@@ -161,16 +161,16 @@
             let csv = [];
             let rows = $("table.entries tr");
 
-            for (var i = 0; i < rows.length; i++) {
-                var row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
 
-                for (var j = 0; j < cols.length; j++)
-                    row.push(cols[j].innerText);
+                for (let j = 0; j < cols.length; j++)
+                    row.push("\"" + cols[j].innerText + "\"");
 
                 csv.push(row.join(","));
             }
 
-            download(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.csv`,csv.join('\n'));
+            download(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.csv`, csv.join('\n'));
         });
 
         $('.entryComment').on('dblclick', event => {
@@ -188,7 +188,7 @@
             commentInput.focus();
 
             $(commentInput).keydown(function (e) {
-                if(e.keyCode == 27) {
+                if (e.keyCode == 27) {
                     commentInput.val("");
                     commentForm.addClass('d-none');
                     commentText.removeClass('d-none');
@@ -205,7 +205,7 @@
                 commentForm.addClass('d-none');
                 commentText.removeClass('d-none');
 
-                if(newCommentText === "" && !parent.data("entry-has-comment")) return;
+                if (newCommentText === "" && !parent.data("entry-has-comment")) return;
 
                 commentText.text(newCommentText);
                 console.log(newCommentText);
