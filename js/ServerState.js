@@ -6,6 +6,8 @@ class ServerState {
         this.projectsDirty = true;
         this.entries = [];
         this.entriesDirty = true;
+        this.todos = [];
+        this.todosDirty = true;
         this.selectedProject = undefined;
     }
 

@@ -16,6 +16,7 @@
     "ejs": "~2.6.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
+    "mdb-ui-kit": "latest",
     "mdbootstrap": "^4.19.2",
     "mongodb": "^3.6.3",
     "morgan": "~1.9.1",

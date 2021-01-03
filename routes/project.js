@@ -88,6 +88,7 @@ router.post('/change-break', (req, res) => {
 router.post('/select-project', (req, res) => {
     let projectId = req.body.id;
     serverState.selectProject(projectId);
+    serverState.todosDirty = true;
     serverState.entriesDirty = true;
     res.status(200).end();
 });

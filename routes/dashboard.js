@@ -4,7 +4,7 @@ let database = require('../js/Database');
 let serverState = require('../js/ServerState');
 
 router.get('/', (req, res, next) => {
-    res.render('pages/dashboard', {});
+    res.render('pages/dashboard', {"activeTab": "dashboard"});
 });
 
 module.exports = {url: "/dashboard", router: router};

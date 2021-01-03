@@ -38,7 +38,8 @@ app.use(function (err, req, res, next) {
     res.render('pages/error.ejs', {
         message_main: `The page you're looking for could not be found (${status})`,
         message_redirect: `Click <a href=\"/\">here</a> to go back to home`,
-        message_page: "Requested page: " + req.url.substr(0)
+        message_page: "Requested page: " + req.url.substr(0),
+        activeTab: "404"
     })
 });
 

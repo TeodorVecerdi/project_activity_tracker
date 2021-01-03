@@ -1,0 +1,1 @@
+/home/teodor/.nvm/versions/node/v15.5.0/bin/pm2 stop all

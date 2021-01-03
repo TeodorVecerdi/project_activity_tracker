@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+<body class="bg-dark-blue">
+<% include ../partials/navbar.ejs %>
+
+<div class="container">
+    <div class="row text-light mt-3 align-items-center">
+        <div class="col-3 text-end">Selected project:</div>
+        <div class="col-2 fw-bold text-primary" id="selectedProject"></div>
+        <div class="col-md-7 col-12 mt-2 mt-md-0">
+            <select aria-label="Select project" class="form-select bg-dark text-light border-primary"
+                    name="selectProject" id="selectProject"></select>
+        </div>
+    </div>
+
+    <form class="flex-row-reverse row mt-2" id="add-todo-item-form" method="post">
+        <div class="col-md-7 col-12 pr-2 mt-1">
+            <div class="bg-dark">
+                <input type="text" class="form-control bg-dark text-light border-primary" id="todoItem"
+                       name="todoItem" placeholder="Add todo entry">
+            </div>
+        </div>
+    </form>
+
+    <div id="todosContainer" class="row mt-5"></div>
+</div>
+
+<% include ../partials/footer.ejs %>
+
+<script src="/javascripts/utils.js"></script>
+<script>
+    let projectMap = {};
+    let activeProject = undefined;
+    let selectInput = $('#selectProject');
+    let selectedProjectText = $('#selectedProject');
+
+    $('#add-todo-item-form').on('submit', (evt) => {
+        evt.preventDefault();
+        let formData = $('#add-todo-item-form').serialize();
+        $.ajax({
+            url: '/todo/add-todo',
+            type: 'post',
+            data: formData,
+            success: () => {
+                $('#add-todo-item-form').trigger('reset');
+                refreshTodos();
+            }
+        });
+    });
+
+    $(() => {
+        refreshProjects(() => {
+            refreshTodos();
+        });
+
+
+        selectInput.on('change', function () {
+            activeProject = this.value;
+            $.ajax({
+                url: '/project/select-project',
+                type: 'post',
+                data: {id: this.value},
+                success: () => {
+                    refreshProjects(() => {
+                        refreshTodos();
+                    });
+                }
+            });
+        });
+    });
+
+    function refreshProjects(callback) {
+        $.ajax({
+            url: '/project/get',
+            type: 'get',
+            success: data => {
+                onLoadProjects(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function refreshTodos(callback) {
+        let todosContainer = $('#todosContainer');
+        if (activeProject === undefined) {
+            todosContainer.html(`<span class="h2 col-12 text-center text-secondary">No project selected</span>`)
+        } else {
+            $.ajax({
+                url: '/todo/get-todos',
+                type: 'get',
+                success: data => {
+                    onLoadTodos(data, callback)
+                },
+                error: err => {
+                    console.error(err);
+                }
+            });
+        }
+    }
+
+    function onLoadTodos(data, callback) {
+        let todosContainer = $('#todosContainer');
+        todosContainer.html("");
+
+        let todos = data.todos;
+        let todoEntries = '';
+        if(todos.length <= 0) {
+            if (callback) callback();
+            return;
+        }
+        let notCompleted = '';
+        todos.forEach(todo => {
+            let isDone = todo.done;
+            if (isDone == true) return;
+            notCompleted += `
+<div class="justify-content-around project-item mb-2 row" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
+<button type="button" class="align-self-center col-2 mx-1 btn ${isDone ? 'btn-danger': 'btn-success'} btn-floating changeTodo" title="Change">
+<i class="fas ${isDone ? 'fa-times': 'fa-check'}"></i></button>
+<span class="h5 col-9 align-self-center text-shadow text-grey">${todo.text}</span>
+<button type="button" class="align-self-center col-1 mx-1 btn btn-secondary btn-floating removeTodo" title="Remove">
+<i class="fas fa-trash-alt"></i></button>
+</div>`;
+        });
+        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/>` + notCompleted;
+
+        let completed = '';
+        todos.forEach(todo => {
+            let isDone = todo.done;
+            if (isDone == false) return;
+            completed += `
+<div class="project-item mb-2 justify-content-around row" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
+<button type="button" class="align-self-center col-2 mx-1 btn ${isDone ? 'btn-danger': 'btn-success'} btn-floating changeTodo" title="Change">
+<i class="fas ${isDone ? 'fa-times': 'fa-check'}"></i></button>
+<span class="h5 col-9 align-self-center text-shadow text-grey">${todo.text}</span>
+<button type="button" class="align-self-center col-1 mx-1 btn btn-secondary btn-floating removeTodo" title="Remove">
+<i class="fas fa-trash-alt"></i></button>
+</div>`;
+        });
+        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/>` + completed;
+        todoEntries = notCompleted + completed;
+
+        todosContainer.html(todoEntries);
+
+        $('.removeTodo').on('click', (event) => {
+            let todoId = $(event.currentTarget).parent().data('todo-id');
+            $.ajax({
+                url: '/todo/remove-todo',
+                type: 'post',
+                data: {id: todoId},
+                success: () => {
+                    refreshTodos();
+                }
+            });
+        });
+
+        $('.changeTodo').on('click', (event) => {
+            let todoId = $(event.currentTarget).parent().data('todo-id');
+            let todoDone = $(event.currentTarget).parent().data('todo-done') == "1";
+            $.ajax({
+                url: '/todo/update-todo',
+                type: 'post',
+                data: {id: todoId, status: !todoDone},
+                success: () => {
+                    refreshTodos();
+                }
+            });
+        });
+
+        if (callback) callback();
+    }
+
+    function onLoadProjects(data, callback) {
+        // reset
+        projectMap = {};
+        selectInput.html("");
+
+        selectInput.append(`<option value='' ${data.selectedProject === undefined ? 'selected' : ''} disabled>Select a project</option>`);
+        data.projects.forEach(project => {
+            projectMap[project.id] = project;
+            selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
+
+            if (data.selectedProject == project.id)
+                activeProject = project.id;
+        });
+
+        if (projectMap.hasOwnProperty(data.selectedProject)) {
+            selectedProjectText.text(projectMap[data.selectedProject].name);
+        } else selectedProjectText.text("None");
+
+        if (callback) callback();
+    }
+</script>
+</body>
+</html>
