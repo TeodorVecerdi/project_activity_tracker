@@ -108,41 +108,37 @@
         todosContainer.html("");
 
         let todos = data.todos;
-        let todoEntries = '';
-        if(todos.length <= 0) {
-            if (callback) callback();
-            return;
-        }
+
         let notCompleted = '';
         todos.forEach(todo => {
             let isDone = todo.done;
             if (isDone == true) return;
             notCompleted += `
-<div class="justify-content-around project-item mb-2 row" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
-<button type="button" class="align-self-center col-2 mx-1 btn ${isDone ? 'btn-danger': 'btn-success'} btn-floating changeTodo" title="Change">
-<i class="fas ${isDone ? 'fa-times': 'fa-check'}"></i></button>
-<span class="h5 col-9 align-self-center text-shadow text-grey">${todo.text}</span>
-<button type="button" class="align-self-center col-1 mx-1 btn btn-secondary btn-floating removeTodo" title="Remove">
+<div class="justify-content-around row mb-2" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
+<button type="button" class="align-self-center col-2 mx-1 btn btn-success btn-floating changeTodo" title="Mark as completed">
+<i class="fas fa-check"></i></button>
+<span class="h5 fw-normal col-9 align-self-center text-shadow text-grey">${todo.text}</span>
+<button type="button" class="align-self-center col-1 mx-1 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
-        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/>` + notCompleted;
 
         let completed = '';
         todos.forEach(todo => {
             let isDone = todo.done;
             if (isDone == false) return;
             completed += `
-<div class="project-item mb-2 justify-content-around row" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
-<button type="button" class="align-self-center col-2 mx-1 btn ${isDone ? 'btn-danger': 'btn-success'} btn-floating changeTodo" title="Change">
-<i class="fas ${isDone ? 'fa-times': 'fa-check'}"></i></button>
-<span class="h5 col-9 align-self-center text-shadow text-grey">${todo.text}</span>
-<button type="button" class="align-self-center col-1 mx-1 btn btn-secondary btn-floating removeTodo" title="Remove">
+<div class="justify-content-around row mb-2" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
+<button type="button" class="align-self-center col-2 mx-1 btn btn-secondary btn-floating changeTodo" title="Mark as not completed">
+<i class="fas fa-times"></i></button>
+<span class="h5 fw-normal col-9 align-self-center text-shadow text-grey">${todo.text}</span>
+<button type="button" class="align-self-center col-1 mx-1 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
-        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/>` + completed;
-        todoEntries = notCompleted + completed;
+        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div style="height: ${completed == '' ? 72 : 32}vh !important; overflow-y: auto">` + notCompleted + "</div>";
+        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div style="height: ${notCompleted == '' ? 72 : 32}vh !important; overflow-y: auto">` + completed + "</div>";
+        let todoEntries = notCompleted + completed;
 
         todosContainer.html(todoEntries);
 
