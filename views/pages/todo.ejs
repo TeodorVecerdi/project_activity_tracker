@@ -136,8 +136,8 @@
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
-        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div style="height: ${completed == '' ? 72 : 32}vh !important; overflow-y: auto">` + notCompleted + "</div>";
-        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div style="height: ${notCompleted == '' ? 72 : 32}vh !important; overflow-y: auto">` + completed + "</div>";
+        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div style="max-height: ${completed == '' ? 72 : 32}vh !important; overflow-y: auto">` + notCompleted + "</div>";
+        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div style="max-height: ${notCompleted == '' ? 72 : 32}vh !important; overflow-y: auto">` + completed + "</div>";
         let todoEntries = notCompleted + completed;
 
         todosContainer.html(todoEntries);
