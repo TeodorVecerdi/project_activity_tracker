@@ -39,7 +39,7 @@
             activeProject = this.value;
             $.ajax({
                 url: '/project/select-project',
-                type: 'post',
+                type: 'put',
                 data: {id: this.value},
                 success: () => {
                     refreshProjects(() => {
@@ -211,7 +211,7 @@
                 console.log(newCommentText);
                 $.ajax({
                     url: '/project/update-entry-comment',
-                    type: 'post',
+                    type: 'patch',
                     data: {id: id, comment: newCommentText},
                     success: () => {
                         getEntries();

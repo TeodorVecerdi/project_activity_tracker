@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 router.get('/get', (req, res, next) => {
     if (serverState.projectsDirty) {
         database.getProjects(projects => {
-            serverState.projects = projects;
+            serverState.projects = [... projects];
             serverState.projectsDirty = false;
             res.status(200).send({
                 projects: serverState.projects,
@@ -33,18 +33,31 @@ router.get('/get', (req, res, next) => {
 router.post('/create', (req, res) => {
     database.addProject(req.body.projectName);
     serverState.projectsDirty = true;
-    res.status(200).end();
+    res.status(201).end();
 })
 
-router.post('/remove', (req, res) => {
+router.delete('/remove', (req, res) => {
+    let removedIndex = serverState.projects.findIndex(project => project.id == req.body.id);
+    if(removedIndex === -1) {
+        serverState.projectsDirty = true;
+        res.status(404).end();
+    }
+
     serverState.removeProject(req.body.id);
     database.removeProject(req.body.id, () => {
         res.status(200).end();
     });
 })
 
-router.post('/change-active', (req, res) => {
+router.patch('/change-active', (req, res) => {
     let projectId = req.body.id;
+    let changedIndex = serverState.projects.findIndex(project => project.id == projectId);
+    if(changedIndex === -1) {
+        serverState.projectsDirty = true;
+        res.status(404).end();
+        return;
+    }
+
     let isActive = serverState.isActive(projectId);
     if (isActive)
         serverState.endActive(projectId, activeProject => {
@@ -69,8 +82,15 @@ router.post('/change-active', (req, res) => {
     }
 });
 
-router.post('/change-break', (req, res) => {
+router.patch('/change-break', (req, res) => {
     let projectId = req.body.id;
+    let changedIndex = serverState.projects.findIndex(project => project.id == projectId);
+    if(changedIndex === -1) {
+        serverState.projectsDirty = true;
+        res.status(404).end();
+        return;
+    }
+
     let isBreakActive = serverState.isBreakActive(projectId);
     if (isBreakActive)
         serverState.endBreak(projectId, copy => {
@@ -85,8 +105,15 @@ router.post('/change-break', (req, res) => {
     }
 });
 
-router.post('/select-project', (req, res) => {
+router.put('/select-project', (req, res) => {
     let projectId = req.body.id;
+    let selectedIndex = serverState.projects.findIndex(project => project.id == projectId);
+    if(selectedIndex === -1) {
+        serverState.projectsDirty = true;
+        res.status(404).end();
+        return;
+    }
+
     serverState.selectProject(projectId);
     serverState.todosDirty = true;
     serverState.entriesDirty = true;
@@ -108,7 +135,7 @@ router.get('/get-entries', (req, res) => {
     }
 })
 
-router.post('/update-entry-comment', (req, res) => {
+router.patch('/update-entry-comment', (req, res) => {
     let entryId = req.body.id;
     let commentText = req.body.comment;
 
@@ -117,25 +144,6 @@ router.post('/update-entry-comment', (req, res) => {
         if (changedIndex === -1) serverState.entriesDirty = true;
         else serverState.entries[changedIndex].comment = commentText;
         res.status(200).end();
-    });
-})
-
-router.get('/export-entries', (req, res) => {
-    let filename = `entries_${serverState.projects.find(project => serverState.selectedProject == project.id).name.replace(' ', '_')}_${uuidv4()}.csv`;
-    let absPath = path.join(__dirname, '/my_files/', filename);
-    let relPath = path.join('./my_files', filename);
-
-    fs.writeFile(relPath, 'File content', (err) => {
-        if (err) throw err;
-
-        res.download(absPath, (err) => {
-            if (err) throw err;
-
-            fs.unlink(relPath, (err) => {
-                if (err) throw err;
-                console.log('FILE [' + filename + '] REMOVED!');
-            });
-        });
     });
 })
 

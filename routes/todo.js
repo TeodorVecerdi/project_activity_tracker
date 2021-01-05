@@ -15,7 +15,7 @@ router.post('/add-todo', (req, res, next) => {
 
     database.addTodo(selectedProject, todoText);
     serverState.todosDirty = true;
-    res.status(200).end();
+    res.status(201).end();
 });
 
 router.get('/get-todos', (req, res, next) => {
@@ -34,20 +34,30 @@ router.get('/get-todos', (req, res, next) => {
     }
 });
 
-router.post('/update-todo', (req, res, next) => {
+router.patch('/update-todo', (req, res, next) => {
     let todoId = req.body.id;
     let todoStatus = req.body.status == 'true';
 
+    let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
+    if(changedIndex === -1) {
+        res.status(404).end();
+        serverState.todosDirty = true;
+    }
+
     database.updateTodo(todoId,todoStatus, () => {
-        let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
-        if(changedIndex === -1) serverState.todosDirty = true;
-        else serverState.todos[changedIndex].done = todoStatus;
+        if(changedIndex !== -1) serverState.todos[changedIndex].done = todoStatus;
         res.status(200).end();
     })
 });
 
-router.post('/remove-todo', (req, res, next) => {
+router.delete('/remove-todo', (req, res, next) => {
     let todoId = req.body.id;
+    let removedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
+
+    if(removedIndex === -1) {
+        res.status(404).end();
+        serverState.todosDirty = true;
+    }
 
     database.removeTodo(todoId, () => {
         serverState.todos = serverState.todos.filter(todo => todo.id != todoId);

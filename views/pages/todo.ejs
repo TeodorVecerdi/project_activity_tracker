@@ -61,7 +61,7 @@
             activeProject = this.value;
             $.ajax({
                 url: '/project/select-project',
-                type: 'post',
+                type: 'put',
                 data: {id: this.value},
                 success: () => {
                     refreshProjects(() => {
@@ -146,7 +146,7 @@
             let todoId = $(event.currentTarget).parent().data('todo-id');
             $.ajax({
                 url: '/todo/remove-todo',
-                type: 'post',
+                type: 'delete',
                 data: {id: todoId},
                 success: () => {
                     refreshTodos();
@@ -159,7 +159,7 @@
             let todoDone = $(event.currentTarget).parent().data('todo-done') == "1";
             $.ajax({
                 url: '/todo/update-todo',
-                type: 'post',
+                type: 'patch',
                 data: {id: todoId, status: !todoDone},
                 success: () => {
                     refreshTodos();

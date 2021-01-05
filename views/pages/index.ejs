@@ -102,7 +102,7 @@
             //console.log(projectId);
             $.ajax({
                 url: '/project/remove',
-                type: 'post',
+                type: 'delete',
                 data: {id: projectId},
                 success: () => {
                     refreshProjects();
@@ -115,7 +115,7 @@
             let projectId = parent.data("project-id");
             $.ajax({
                 url: '/project/change-active',
-                type: 'post',
+                type: 'patch',
                 data: {id: projectId},
                 success: () => {
                     refreshProjects();
@@ -127,7 +127,7 @@
             let projectId = parent.data("project-id");
             $.ajax({
                 url: '/project/change-break',
-                type: 'post',
+                type: 'patch',
                 data: {id: projectId},
                 success: () => {
                     refreshProjects();
