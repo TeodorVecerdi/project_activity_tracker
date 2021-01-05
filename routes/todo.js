@@ -22,9 +22,14 @@ router.get('/get-todos', (req, res, next) => {
     let selectedProject = serverState.selectedProject;
     if (selectedProject === undefined) res.status(404).end();
 
-    if(serverState.todosDirty) {
+    if(req.query.hasOwnProperty('makeDirty')) {
+        let makeDirty = req.query['makeDirty'] == 'true';
+        if(makeDirty) serverState.todosDirty = true;
+    }
+
+    if (serverState.todosDirty) {
         database.getTodos(selectedProject, todos => {
-            serverState.todos = [... todos];
+            serverState.todos = [...todos];
             serverState.todosDirty = false;
 
             res.status(200).send({todos: todos});
@@ -39,22 +44,54 @@ router.patch('/update-todo', (req, res, next) => {
     let todoStatus = req.body.status == 'true';
 
     let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
-    if(changedIndex === -1) {
+    if (changedIndex === -1) {
         res.status(404).end();
         serverState.todosDirty = true;
     }
 
-    database.updateTodo(todoId,todoStatus, () => {
-        if(changedIndex !== -1) serverState.todos[changedIndex].done = todoStatus;
+    database.updateTodo(todoId, todoStatus, () => {
+        if (changedIndex !== -1) serverState.todos[changedIndex].done = todoStatus;
         res.status(200).end();
-    })
+    });
+});
+
+router.patch('/update-todo-priority', (req, res, next) => {
+    let todoId = req.body.id;
+    let todoPriority = req.body.priority;
+
+    let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
+    if (changedIndex === -1) {
+        res.status(404).end();
+        serverState.todosDirty = true;
+    }
+
+    database.updateTodoPriority(todoId, todoPriority, () => {
+        if (changedIndex !== -1) serverState.todos[changedIndex].priority = todoPriority;
+        res.status(200).end();
+    });
+});
+
+router.patch('/update-todo-type', (req, res, next) => {
+    let todoId = req.body.id;
+    let todoType = req.body.type;
+
+    let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
+    if (changedIndex === -1) {
+        res.status(404).end();
+        serverState.todosDirty = true;
+    }
+
+    database.updateTodoType(todoId, todoType, () => {
+        if (changedIndex !== -1) serverState.todos[changedIndex].type = todoType;
+        res.status(200).end();
+    });
 });
 
 router.delete('/remove-todo', (req, res, next) => {
     let todoId = req.body.id;
     let removedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
 
-    if(removedIndex === -1) {
+    if (removedIndex === -1) {
         res.status(404).end();
         serverState.todosDirty = true;
     }

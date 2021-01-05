@@ -53,7 +53,7 @@
 
     $(() => {
         refreshProjects(() => {
-            refreshTodos();
+            refreshTodos({makeDirty: true});
         });
 
 
@@ -65,7 +65,7 @@
                 data: {id: this.value},
                 success: () => {
                     refreshProjects(() => {
-                        refreshTodos();
+                        refreshTodos({makeDirty: true});
                     });
                 }
             });
@@ -85,14 +85,16 @@
         });
     }
 
-    function refreshTodos(callback) {
+    function refreshTodos(options = {}, callback) {
         let todosContainer = $('#todosContainer');
+
         if (activeProject === undefined) {
             todosContainer.html(`<span class="h2 col-12 text-center text-secondary">No project selected</span>`)
         } else {
             $.ajax({
                 url: '/todo/get-todos',
                 type: 'get',
+                data: options,
                 success: data => {
                     onLoadTodos(data, callback)
                 },
@@ -108,17 +110,26 @@
         todosContainer.html("");
 
         let todos = data.todos;
-
         let notCompleted = '';
         todos.forEach(todo => {
             let isDone = todo.done;
             if (isDone == true) return;
+            let priority = parseInt(todo.priority);
+            let type = parseInt(todo.type);
             notCompleted += `
-<div class="justify-content-around row mb-2" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
-<button type="button" class="align-self-center col-2 mx-1 btn btn-success btn-floating changeTodo" title="Mark as completed">
+<div class="justify-content-around row mb-md-2 mb-4 pb-3 pb-md-0" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-priority="${priority}" data-todo-type="${type}" data-todo-done="${isDone}">
+<div class="d-flex flex-row flex-grow-1 justify-content-center align-self-center col-12 col-md-2">
+<button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changePriority" title="${priority === 0 ? 'Priority: Low' : priority === 1 ? 'Priority: Normal' : 'Priority: High'}">
+<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)':''}"></i></button>
+<button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changeType" title="${type === 0 ? 'Feature' : 'Bug'}">
+<i class="${type === 0 ? 'far fa-lightbulb text-warning' : 'fas fa-bug text-secondary'}"></i></button>
+<button type="button" class="btn btn-success btn-floating shadow-1-strong changeTodo" title="Mark as completed">
 <i class="fas fa-check"></i></button>
-<span class="h5 fw-normal col-9 align-self-center text-shadow text-grey">${todo.text}</span>
-<button type="button" class="align-self-center col-1 mx-1 btn btn-primary btn-floating removeTodo" title="Remove">
+</div>
+<div class="flex-grow-1 col-12 col-md-9 align-self-center">
+<div class="fs-5 text-center text-md-start text-shadow text-grey">${todo.text}</div>
+</div>
+<button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
@@ -127,17 +138,27 @@
         todos.forEach(todo => {
             let isDone = todo.done;
             if (isDone == false) return;
+            let priority = parseInt(todo.priority);
+            let type = parseInt(todo.type);
             completed += `
-<div class="justify-content-around row mb-2" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-done="${isDone}">
-<button type="button" class="align-self-center col-2 mx-1 btn btn-secondary btn-floating changeTodo" title="Mark as not completed">
+<div class="justify-content-around row mb-md-2 mb-4 pb-3 pb-md-0" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-priority="${priority}" data-todo-type="${type}" data-todo-done="${isDone}">
+<div class="d-flex flex-row flex-grow-1 justify-content-center align-self-center col-12 col-md-2">
+<button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changePriority" title="${priority === 0 ? 'Priority: Low' : priority === 1 ? 'Priority: Normal' : 'Priority: High'}">
+<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)':''}"></i></button>
+<button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changeType" title="${type === 0 ? 'Feature' : 'Bug'}">
+<i class="${type === 0 ? 'far fa-lightbulb text-warning' : 'fas fa-bug text-secondary'}"></i></button>
+<button type="button" class="btn btn-secondary btn-floating changeTodo" title="Mark not as completed">
 <i class="fas fa-times"></i></button>
-<span class="h5 fw-normal col-9 align-self-center text-shadow text-grey">${todo.text}</span>
-<button type="button" class="align-self-center col-1 mx-1 btn btn-primary btn-floating removeTodo" title="Remove">
+</div>
+<div class="flex-grow-1 col-12 col-md-9 align-self-center">
+<div class="fs-5 text-center text-md-start text-shadow text-grey">${todo.text}</div>
+</div>
+<button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
-        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div style="max-height: ${completed == '' ? 72 : 32}vh !important; overflow-y: auto">` + notCompleted + "</div>";
-        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div style="max-height: ${notCompleted == '' ? 72 : 32}vh !important; overflow-y: auto">` + completed + "</div>";
+        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${completed == '' ? -1 : 72}vh !important; overflow-y: auto">` + notCompleted + "</div>";
+        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${notCompleted == '' ? -1 : 72}vh !important; overflow-y: auto">` + completed + "</div>";
         let todoEntries = notCompleted + completed;
 
         todosContainer.html(todoEntries);
@@ -155,12 +176,40 @@
         });
 
         $('.changeTodo').on('click', (event) => {
-            let todoId = $(event.currentTarget).parent().data('todo-id');
-            let todoDone = $(event.currentTarget).parent().data('todo-done') == "1";
+            let todoId = $(event.currentTarget).parent().parent().data('todo-id');
+            let todoDone = $(event.currentTarget).parent().parent().data('todo-done') == "1";
             $.ajax({
                 url: '/todo/update-todo',
                 type: 'patch',
                 data: {id: todoId, status: !todoDone},
+                success: () => {
+                    refreshTodos();
+                }
+            });
+        });
+
+        $('.changePriority').on('click', (event) => {
+            let todoId = $(event.currentTarget).parent().parent().data('todo-id');
+            let todoPriority = parseInt($(event.currentTarget).parent().parent().data('todo-priority'));
+            let newPriority = (todoPriority + 1) % 3;
+            $.ajax({
+                url: '/todo/update-todo-priority',
+                type: 'patch',
+                data: {id: todoId, priority: newPriority},
+                success: () => {
+                    refreshTodos();
+                }
+            });
+        });
+
+        $('.changeType').on('click', (event) => {
+            let todoId = $(event.currentTarget).parent().parent().data('todo-id');
+            let todoType = parseInt($(event.currentTarget).parent().parent().data('todo-type'));
+            let newType = (todoType + 1) % 2;
+            $.ajax({
+                url: '/todo/update-todo-type',
+                type: 'patch',
+                data: {id: todoId, type: newType},
                 success: () => {
                     refreshTodos();
                 }

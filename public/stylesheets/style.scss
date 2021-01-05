@@ -1,0 +1,57 @@
+@for $i from 0 to 10 {
+    .br-#{$i*10} {
+        border-radius: $i*10% !important;
+    }
+    .br-#{$i*10+2}\.5 {
+        border-radius: $i*10% + 2.5% !important;
+    }
+    .br-#{$i*10+5} {
+        border-radius: $i*10% + 5% !important;
+    }
+    .br-#{$i*10+7}\.5 {
+        border-radius: $i*10% + 7.5% !important;
+    }
+}
+
+.br-100 {
+    border-radius: 100% !important;
+}
+
+@for $wh from 0 through 10 {
+    .wh-#{$wh} {
+        width: #{$wh}rem !important;
+        height: #{$wh}rem !important;
+        max-width: #{$wh}rem !important;
+        max-height: #{$wh}rem !important;
+    }
+}
+
+.noScrollbar {
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.noScrollbar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.firaCode {
+    font-family: 'Fira Code', monospace !important;
+}
+
+.text-shadow {
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+}
+
+.border-dark {
+    border-color: #212121;
+}
+
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.float-right {
+    float: right !important;
+}

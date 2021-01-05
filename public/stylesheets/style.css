@@ -1,72 +1,273 @@
+.br-0 {
+  border-radius: 0% !important;
+}
+
+.br-2\.5 {
+  border-radius: 2.5% !important;
+}
+
+.br-5 {
+  border-radius: 5% !important;
+}
+
+.br-7\.5 {
+  border-radius: 7.5% !important;
+}
+
+.br-10 {
+  border-radius: 10% !important;
+}
+
+.br-12\.5 {
+  border-radius: 12.5% !important;
+}
+
+.br-15 {
+  border-radius: 15% !important;
+}
+
+.br-17\.5 {
+  border-radius: 17.5% !important;
+}
+
+.br-20 {
+  border-radius: 20% !important;
+}
+
+.br-22\.5 {
+  border-radius: 22.5% !important;
+}
+
+.br-25 {
+  border-radius: 25% !important;
+}
+
+.br-27\.5 {
+  border-radius: 27.5% !important;
+}
+
+.br-30 {
+  border-radius: 30% !important;
+}
+
+.br-32\.5 {
+  border-radius: 32.5% !important;
+}
+
+.br-35 {
+  border-radius: 35% !important;
+}
+
+.br-37\.5 {
+  border-radius: 37.5% !important;
+}
+
+.br-40 {
+  border-radius: 40% !important;
+}
+
+.br-42\.5 {
+  border-radius: 42.5% !important;
+}
+
+.br-45 {
+  border-radius: 45% !important;
+}
+
+.br-47\.5 {
+  border-radius: 47.5% !important;
+}
+
+.br-50 {
+  border-radius: 50% !important;
+}
+
+.br-52\.5 {
+  border-radius: 52.5% !important;
+}
+
+.br-55 {
+  border-radius: 55% !important;
+}
+
+.br-57\.5 {
+  border-radius: 57.5% !important;
+}
+
+.br-60 {
+  border-radius: 60% !important;
+}
+
+.br-62\.5 {
+  border-radius: 62.5% !important;
+}
+
+.br-65 {
+  border-radius: 65% !important;
+}
+
+.br-67\.5 {
+  border-radius: 67.5% !important;
+}
+
+.br-70 {
+  border-radius: 70% !important;
+}
+
+.br-72\.5 {
+  border-radius: 72.5% !important;
+}
+
+.br-75 {
+  border-radius: 75% !important;
+}
+
+.br-77\.5 {
+  border-radius: 77.5% !important;
+}
+
+.br-80 {
+  border-radius: 80% !important;
+}
+
+.br-82\.5 {
+  border-radius: 82.5% !important;
+}
+
+.br-85 {
+  border-radius: 85% !important;
+}
+
+.br-87\.5 {
+  border-radius: 87.5% !important;
+}
+
+.br-90 {
+  border-radius: 90% !important;
+}
+
+.br-92\.5 {
+  border-radius: 92.5% !important;
+}
+
+.br-95 {
+  border-radius: 95% !important;
+}
+
+.br-97\.5 {
+  border-radius: 97.5% !important;
+}
+
+.br-100 {
+  border-radius: 100% !important;
+}
+
+.wh-0 {
+  width: 0rem !important;
+  height: 0rem !important;
+  max-width: 0rem !important;
+  max-height: 0rem !important;
+}
+
+.wh-1 {
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 1rem !important;
+  max-height: 1rem !important;
+}
+
+.wh-2 {
+  width: 2rem !important;
+  height: 2rem !important;
+  max-width: 2rem !important;
+  max-height: 2rem !important;
+}
+
+.wh-3 {
+  width: 3rem !important;
+  height: 3rem !important;
+  max-width: 3rem !important;
+  max-height: 3rem !important;
+}
+
+.wh-4 {
+  width: 4rem !important;
+  height: 4rem !important;
+  max-width: 4rem !important;
+  max-height: 4rem !important;
+}
+
+.wh-5 {
+  width: 5rem !important;
+  height: 5rem !important;
+  max-width: 5rem !important;
+  max-height: 5rem !important;
+}
+
+.wh-6 {
+  width: 6rem !important;
+  height: 6rem !important;
+  max-width: 6rem !important;
+  max-height: 6rem !important;
+}
+
+.wh-7 {
+  width: 7rem !important;
+  height: 7rem !important;
+  max-width: 7rem !important;
+  max-height: 7rem !important;
+}
+
+.wh-8 {
+  width: 8rem !important;
+  height: 8rem !important;
+  max-width: 8rem !important;
+  max-height: 8rem !important;
+}
+
+.wh-9 {
+  width: 9rem !important;
+  height: 9rem !important;
+  max-width: 9rem !important;
+  max-height: 9rem !important;
+}
+
+.wh-10 {
+  width: 10rem !important;
+  height: 10rem !important;
+  max-width: 10rem !important;
+  max-height: 10rem !important;
+}
+
+.noScrollbar {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.noScrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 .firaCode {
-    font-family: 'Fira Code', monospace !important;
+  font-family: "Fira Code", monospace !important;
 }
 
 .text-shadow {
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
 }
 
 .border-dark {
-    border-color: #212121;
+  border-color: #212121;
 }
 
 .cursor-pointer {
-    cursor: pointer !important;
+  cursor: pointer !important;
 }
 
 .float-right {
-    float: right !important
+  float: right !important;
 }
 
-/* floating button */
-
-.btn-floating, [class*=btn-outline-].btn-floating {
-    border-radius: 50% !important;
-    padding: 0 !important;
-    position: relative !important;
-}
-
-.btn-floating {
-    width: calc(2.3125rem * 1.25) !important;
-    height: calc(2.3125rem * 1.25) !important;
-}
-
-.btn-floating .fab, .btn-floating .far, .btn-floating .fas {
-    width: calc(2.3125rem * 1.25) !important;
-    line-height: calc(2.3125rem * 1.25) !important;
-}
-
-.btn-floating.btn-lg, .btn-group-lg > .btn-floating.btn {
-    width: calc(calc(2.8125rem * 1.25) * 1.25) !important;
-    height: calc(2.8125rem * 1.25) !important;
-}
-
-.btn-floating.btn-lg .fab, .btn-floating.btn-lg .far, .btn-floating.btn-lg .fas, .btn-group-lg > .btn-floating.btn .fab, .btn-group-lg > .btn-floating.btn .far, .btn-group-lg > .btn-floating.btn .fas {
-    width: calc(2.8125rem * 1.25) !important;
-    line-height: calc(2.8125rem * 1.25) !important;
-}
-
-.btn-floating.btn-sm, .btn-group-sm > .btn-floating.btn {
-    width: calc(1.8125rem * 1.25) !important;
-    height: calc(1.8125rem * 1.25) !important;
-}
-
-.btn-floating.btn-sm .fab, .btn-floating.btn-sm .far, .btn-floating.btn-sm .fas, .btn-group-sm > .btn-floating.btn .fab, .btn-group-sm > .btn-floating.btn .far, .btn-group-sm > .btn-floating.btn .fas {
-    width: calc(1.8125rem * 1.25) !important;
-    line-height: calc(1.8125rem * 1.25) !important;
-}
-
-[class*=btn-outline-].btn-floating .fab, [class*=btn-outline-].btn-floating .far, [class*=btn-outline-].btn-floating .fas {
-    width: calc(2.0625rem * 1.25) !important;
-    line-height: calc(2.0625rem * 1.25) !important;
-}
-
-.btn-group-lg > .btn[class*=btn-outline-].btn-floating .fab, .btn-group-lg > .btn[class*=btn-outline-].btn-floating .far, .btn-group-lg > .btn[class*=btn-outline-].btn-floating .fas, [class*=btn-outline-].btn-floating.btn-lg .fab, [class*=btn-outline-].btn-floating.btn-lg .far, [class*=btn-outline-].btn-floating.btn-lg .fas {
-    width: calc(2.5625rem * 1.25) !important;
-    line-height: calc(2.5625rem * 1.25) !important;
-}
-
-.btn-group-sm > .btn[class*=btn-outline-].btn-floating .fab, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .far, .btn-group-sm > .btn[class*=btn-outline-].btn-floating .fas, [class*=btn-outline-].btn-floating.btn-sm .fab, [class*=btn-outline-].btn-floating.btn-sm .far, [class*=btn-outline-].btn-floating.btn-sm .fas {
-    width: calc(1.5625rem * 1.25) !important;
-    line-height: calc(1.5625rem * 1.25) !important;
-}
+/*# sourceMappingURL=style.css.map */

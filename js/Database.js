@@ -53,38 +53,54 @@ class Database {
 
     addTodo(projectId, text, callback) {
         this.con.query('insert into todos (PROJECT_ID, TEXT, DONE) values (?,?,?)', [projectId, text, false], (err, res) => {
-            if(err) throw err;
-            if(callback) callback();
+            if (err) throw err;
+            if (callback) callback();
         })
     }
 
     getTodos(projectId, callback) {
         console.log("Retrieved todos from DB");
-        this.con.query("select * from todos where PROJECT_ID = ? order by ID desc", [projectId], (err, res) => {
-            if(err) throw err;
+        this.con.query("select * from todos where PROJECT_ID = ? order by PRIORITY desc, TYPE asc, ID desc", [projectId], (err, res) => {
+            if (err) throw err;
             let todos = [];
             res.forEach(todo => {
-               todos.push({
-                  id: todo.ID,
-                  text: todo.TEXT,
-                  done: todo.DONE
-               });
+                todos.push({
+                    id: todo.ID,
+                    text: todo.TEXT,
+                    done: todo.DONE,
+                    priority: todo.PRIORITY,
+                    type: todo.TYPE
+                });
             });
-            if(callback) callback(todos);
+            if (callback) callback(todos);
         })
     }
 
     updateTodo(todoId, done, callback) {
         this.con.query('UPDATE todos SET DONE=? WHERE ID=?', [done, todoId], (err, res) => {
-            if(err) throw err;
-            if(callback) callback();
+            if (err) throw err;
+            if (callback) callback();
+        })
+    }
+
+    updateTodoPriority(todoId, priority, callback) {
+        this.con.query('UPDATE todos SET PRIORITY=? WHERE ID=?', [priority, todoId], (err, res) => {
+            if (err) throw err;
+            if (callback) callback();
+        })
+    }
+
+    updateTodoType(todoId, type, callback) {
+        this.con.query('UPDATE todos SET TYPE=? WHERE ID=?', [type, todoId], (err, res) => {
+            if (err) throw err;
+            if (callback) callback();
         })
     }
 
     removeTodo(todoId, callback) {
         this.con.query("delete from todos WHERE ID = ?", [todoId], (err, res) => {
             if (err) throw err;
-            if(callback) callback();
+            if (callback) callback();
         })
     }
 
