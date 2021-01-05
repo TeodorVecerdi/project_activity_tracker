@@ -7,6 +7,21 @@ String.prototype.format = function() {
     return a;
 };
 
+function zeroPad(n) {
+    return `${n < 10 ? "0":""}${n}`;
+}
+
+function formatDate(date) {
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    let timezone = date.toTimeString().split(' ')[1].slice(0,6);
+    return `${zeroPad(day)}/${zeroPad(month)}/${zeroPad(year)} ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)} ${timezone}`;
+}
+
 function uuid4(pattern) {
     let array = new Uint8Array(16)
     crypto.getRandomValues(array)

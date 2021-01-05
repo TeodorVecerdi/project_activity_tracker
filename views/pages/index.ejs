@@ -5,17 +5,16 @@
 </head>
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
-<div class="container">
+<div class="container px-3 px-lg-0">
     <form class="row mt-5" id="add-project-form" method="post">
-        <div class="col-10 pr-2">
-            <div class="form-floating bg-dark">
+        <div class="col-12 col-lg-11">
+            <div class="bg-dark">
                 <input type="text" class="form-control bg-dark text-light border-primary" id="projectName"
-                       name="projectName" placeholder="Project name">
-                <label for="projectName" class="text-light">Project name</label>
+                       name="projectName" placeholder="Add project">
             </div>
         </div>
-        <div class="col-2">
-            <button id="submit-button" type="submit" class="btn btn-floating btn-primary grey-text" title="Create">
+        <div class="d-none d-lg-block col-1">
+            <button id="submit-button" type="submit" class="btn btn-sm btn-floating btn-primary grey-text" title="Create">
                 <i class="fa fa-plus"></i>
             </button>
         </div>
@@ -80,15 +79,15 @@
 
             let activeTimer = isActive ? `<span id="activeTimer-${project.id}" class="fw-light text-primary">Active: 00:00:00</span>` : "";
             let breakTimer = isBreakActive ? `<span id="breakTimer-${project.id}" class="fw-light text-secondary">On break: 00:00:00</span>` : "";
-            let timers = isActive||isBreakActive ? `<span class="text-light fst-normal float-right">(${activeTimer}${isActive&&isBreakActive?',&nbsp;':''}${breakTimer})</span>` : '';
+            let timers = isActive||isBreakActive ? `<span class="text-light fst-normal float-end">(${activeTimer}${isActive&&isBreakActive?',&nbsp;':''}${breakTimer})</span>` : '';
             $('#projects').append(`
-                    <div class="project-item mb-2 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
-                        <span class="h4 fw-bold col-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
+                    <div class="project-item mb-2 mt-3 mt-lg-0 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
+                        <span class="fs-6 fs-lg-4 fw-bold col-12 col-lg-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
                             ${timers}
                         </span>
-                        <button type="button" class="col-2 mx-1 setActiveInactive ${activeButtonClasses}" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>
-                        <button type="button" class="col-2 mx-1 startEndBreak ${breakButtonClasses}" title="${isBreakActive ? "End" : "Start"} break">${isBreakActive ? "End" : "Start"} break</button>
-                        <button type="button" class="col-1 mx-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
+                        <button type="button" class="col-5 col-lg-2 mx-0 mx-lg-1 setActiveInactive ${activeButtonClasses}" title="Set ${isActive ? "inactive" : "active"}">Set ${isActive ? "inactive" : "active"}</button>
+                        <button type="button" class="col-5 col-lg-2 mx-0 mx-lg-1 startEndBreak ${breakButtonClasses}" title="${isBreakActive ? "End" : "Start"} break">${isBreakActive ? "End" : "Start"} break</button>
+                        <button type="button" class="col-1 col-lg-1 mx-0 mx-lg-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
                             <i class="fa fa-trash-alt"></i>
                         </button>
                     </div>
