@@ -60,7 +60,7 @@ class Database {
 
     getTodos(projectId, callback) {
         console.log("Retrieved todos from DB");
-        this.con.query("select * from todos where PROJECT_ID = ? order by PRIORITY desc, TYPE asc, ID desc", [projectId], (err, res) => {
+        this.con.query("select * from todos where PROJECT_ID = ? order by PRIORITY desc, TYPE desc, ID desc", [projectId], (err, res) => {
             if (err) throw err;
             let todos = [];
             res.forEach(todo => {
