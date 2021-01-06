@@ -40,7 +40,7 @@ app.use(function (err, req, res, next) {
         message_redirect: `Click <a href=\"/\">here</a> to go back to home`,
         message_page: "Requested page: " + req.url.substr(0),
         activeTab: "404"
-    })
+    });
 });
 
 module.exports = app;

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+
+<body class="bg-dark-blue">
+<% include ../partials/navbar.ejs %>
+<div class="container">
+    <h1 class="text-light text-center">Edit note <%= noteId %></h1>
+    <div class="form-row">
+        <div class="form-outline mb-4">
+            <input type="text" id="noteTitle" class="form-control text-light" />
+            <label class="form-label text-light" for="noteTitle">Note Title</label>
+        </div>
+
+        <div class="form-outline mb-4">
+            <textarea id="noteContents" class="form-control text-light"></textarea>
+            <label class="form-label text-light" for="noteContents">Note Contents</label>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="saveNoteButton">Save</button>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<script>
+    let noteId = "<%= noteId %>";
+    let lastCommittedTitle = undefined;
+    let lastCommittedContents = undefined;
+    let lastCommittedProject = undefined;
+
+    $(() => {
+        getNote(noteId, note => {
+            lastCommittedTitle = unescape(note.title);
+            lastCommittedContents = unescape(note.contents);
+            lastCommittedProject = note.linkedProject;
+        });
+
+        $('#saveNoteButton').on('click', evt => {
+            let currentTitle = $('#noteTitle').val();
+            let currentContents = $('#noteContents').val();
+            update(currentTitle, currentContents);
+        });
+    });
+
+    function getNote(noteId, callback) {
+        $.ajax({
+            url: `/notes/get/${noteId}`,
+            type: 'get',
+            success: data => {
+                onLoadNote(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadNote(data, callback) {
+        $('#noteTitle').val(unescape(data['note'].title));
+        $('#noteContents').val(unescape(data['note'].contents));
+        if(callback) callback(data['note']);
+    }
+
+    function update(title, contents, callback) {
+        if(title !== lastCommittedTitle) {
+            $.ajax({
+                url: '/notes/update/title',
+                type: 'patch',
+                data: {noteId: noteId, title: escape(title)},
+                success: () => {
+                    console.log("Successfully saved title");
+                }
+            });
+        }
+
+        if(contents !== lastCommittedContents) {
+            $.ajax({
+                url: '/notes/update/contents',
+                type: 'patch',
+                data: {noteId: noteId, contents: escape(contents)},
+                success: () => {
+                    console.log("Successfully saved contents");
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

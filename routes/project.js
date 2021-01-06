@@ -3,11 +3,6 @@ let router = express.Router();
 let database = require('../js/Database');
 let serverState = require('../js/ServerState');
 
-let fs = require('fs');
-let path = require('path');
-const { v4: uuidv4 } = require('uuid');
-
-
 router.get('/get', (req, res, next) => {
     if (serverState.projectsDirty) {
         database.getProjects(projects => {
