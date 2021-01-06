@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+
+<body class="bg-dark-blue">
+<% include ../partials/navbar.ejs %>
+<div class="container h-100 d-flex flex-1 flex-column align-content-center justify-content-center">
+    <a class="btn btn-primary flex-grow-1" href="/notes/edit">Create new note</a>
+    <div id="notesContainer">
+
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+
+<script type="module">
+    import {sanitizeHtml, DefaultAllowlist} from "/javascripts/sanitizer.js";
+
+    let projectMap = {};
+    let activeProject = undefined;
+
+    $(() => {
+        refreshProjects(() => {
+            refreshNotes();
+        });
+    });
+
+    function refreshNotes(callback) {
+        $.ajax({
+            url: '/notes/get',
+            type: 'get',
+            success: data => {
+                onLoadNotes(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadNotes(data, callback) {
+        $('#notesContainer').html("");
+        Object.keys(data['notes']).forEach(key => {
+            let note = data['notes'][key];
+            $('#notesContainer').append(`
+<div class="text-light mb-4" data-note-id="${note.noteId}">
+    <h2>ID: ${note.noteId}</h2>
+    <h2>Title: ${sanitizeHtml(note.title, DefaultAllowlist)}</h2>
+    <h2>Content: ${sanitizeHtml(note.contents,DefaultAllowlist)}</h2>
+    <h2>Linked Project: ${note.linkedProject}</h2>
+    <a href="/notes/edit/${note.noteId}" class="btn btn-primary">Edit</a>
+    <a href="/notes/view/${note.noteId}" class="btn btn-primary">view</a>
+    <div class="btn btn-primary deleteNote">Delete</div>
+</div>
+`)
+        });
+
+        $('.deleteNote').on('click', evt => {
+            let noteId = $(evt.currentTarget).parent().data('note-id');
+            $.ajax({
+                url: '/notes/remove',
+                type: 'delete',
+                data: {noteId: noteId},
+                success: () => {
+                    refreshNotes(callback);
+                }
+            });
+        })
+    }
+
+    function refreshProjects(callback) {
+        $.ajax({
+            url: '/project/get',
+            type: 'get',
+            success: data => {
+                onLoadProjects(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadProjects(data, callback) {
+        // reset
+        projectMap = {};
+        /*selectInput.html("");
+
+        selectInput.append(`<option value='' ${data.selectedProject === undefined ? 'selected' : ''} disabled>Select a project</option>`);*/
+        data.projects.forEach(project => {
+            projectMap[project.id] = project;
+            // selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
+
+            if (data.selectedProject == project.id)
+                activeProject = project.id;
+        });
+
+        if (projectMap.hasOwnProperty(data.selectedProject)) {
+            // selectedProjectText.text(projectMap[data.selectedProject].name);
+        } /*else selectedProjectText.text("None");*/
+
+        if (callback) callback();
+    }
+
+</script>
+</body>
+</html>

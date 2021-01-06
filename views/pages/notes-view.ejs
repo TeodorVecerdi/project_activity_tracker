@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head.ejs %>
+</head>
+
+<body class="bg-dark-blue">
+<% include ../partials/navbar.ejs %>
+<div class="container">
+    <h1 class="text-light text-center">Viewing note <%= noteId %></h1>
+    <div class="text-light">
+        <h1 id="noteTitle"></h1>
+        <span style="white-space: pre" id="noteContents"></span>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+
+<script>
+    let noteId = "<%= noteId %>";
+    $(() => {
+       getNote(noteId);
+    });
+
+    function getNote(noteId, callback) {
+        $.ajax({
+            url: `/notes/get/${noteId}`,
+            type: 'get',
+            success: data => {
+                onLoadNote(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadNote(data, callback) {
+        $('#noteTitle').text(unescape(data['note'].title));
+        $('#noteContents').text(unescape(data['note'].contents));
+        if(callback) callback(data['note']);
+    }
+</script>
+</body>
+</html>

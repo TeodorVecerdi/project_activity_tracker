@@ -134,7 +134,69 @@ class Database {
             });
 
             if (callback) callback(projects);
+        });
+    }
+
+    createNote(noteId, callback) {
+        this.con.query('insert into notes (ID, PROJECT_ID) VALUES (?, ?)', [noteId,-1], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
         })
+    }
+
+    removeNote(noteId, callback) {
+        this.con.query('delete from notes where ID = ?', [noteId], (err, res) => {
+            if (err) throw err;
+            if (callback) callback();
+        });
+    }
+
+    getNotes(callback) {
+        console.log("Retrieved notes from DB");
+        this.con.query('select * from notes', (err, res) => {
+            if (err) throw err;
+            let notes = {};
+            res.forEach(note => {
+                notes[note.ID] = {noteId: note.ID, title: note.TITLE, contents: note.CONTENTS, linkedProject: note.PROJECT_ID};
+            });
+
+            if (callback) callback(notes);
+        });
+    }
+
+    updateNoteContents(noteId, noteContents, callback) {
+        this.con.query('update notes set CONTENTS = ? WHERE ID = ?', [noteContents, noteId], (err, res) => {
+           if(err) throw err;
+           if(callback) callback();
+        });
+    }
+
+    updateNoteTitle(noteId, noteTitle, callback) {
+        this.con.query('update notes set TITLE = ? WHERE ID = ?', [noteTitle, noteId], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
+        });
+    }
+
+    updateNoteLinkedProject(noteId, projectId, callback) {
+        this.con.query('update notes set PROJECT_ID = ? WHERE ID = ?', [projectId, noteId], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
+        });
+    }
+
+    async noteExists(noteId, callback) {
+        let promise = new Promise((resolve, reject) => {
+            this.con.query('select * from notes where ID = ?', [noteId], (err, res) => {
+                if(err) {
+                    reject();
+                    throw err;
+                }
+                if(callback) callback();
+                resolve(res.length > 0);
+            })
+        });
+        return promise.then(result => result);
     }
 
     close() {
