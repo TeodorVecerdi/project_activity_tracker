@@ -14,7 +14,8 @@
             </div>
         </div>
         <div class="d-none d-lg-block col-1">
-            <button id="submit-button" type="submit" class="btn btn-sm btn-floating btn-primary grey-text" title="Create">
+            <button id="submit-button" type="submit" class="btn btn-sm btn-floating btn-primary grey-text"
+                    title="Create">
                 <i class="fa fa-plus"></i>
             </button>
         </div>
@@ -28,6 +29,7 @@
 
 <% include ../partials/footer.ejs %>
 
+<script type="text/javascript" src="/javascripts/utils.js"></script>
 <script>
     let activeTimers = {};
     let breakTimers = {};
@@ -35,7 +37,7 @@
         refreshProjects();
         setInterval(() => {
             updateTimers();
-        }, 250);
+        }, 75);
     });
     $('#add-project-form').on('submit', (evt) => {
         evt.preventDefault();
@@ -79,7 +81,7 @@
 
             let activeTimer = isActive ? `<span id="activeTimer-${project.id}" class="fw-light text-primary">Active: 00:00:00</span>` : "";
             let breakTimer = isBreakActive ? `<span id="breakTimer-${project.id}" class="fw-light text-secondary">On break: 00:00:00</span>` : "";
-            let timers = isActive||isBreakActive ? `<span class="text-light fst-normal float-end">(${activeTimer}${isActive&&isBreakActive?',&nbsp;':''}${breakTimer})</span>` : '';
+            let timers = isActive || isBreakActive ? `<span class="text-light fst-normal float-end">(${activeTimer}${isActive && isBreakActive ? ',&nbsp;' : ''}${breakTimer})</span>` : '';
             $('#projects').append(`
                     <div class="project-item mb-2 mt-3 mt-lg-0 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
                         <span class="fs-6 fs-lg-4 fw-bold col-12 col-lg-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
@@ -93,8 +95,8 @@
                     </div>
                     `);
 
-            if(isActive) activeTimers[project.id] = data.activeProjects[project.id].start;
-            if(isBreakActive) breakTimers[project.id] = data.activeBreaks[project.id].start;
+            if (isActive) activeTimers[project.id] = data.activeProjects[project.id].start;
+            if (isBreakActive) breakTimers[project.id] = data.activeBreaks[project.id].start;
         });
         $('.removeProject').on('click', (event) => {
             let projectId = $(event.currentTarget).parent().data('project-id');
@@ -137,19 +139,22 @@
     }
 
     function updateTimers() {
-        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-        let currentTime = Date.now() + timezoneOffset;
-        for(let [key, value] of Object.entries(activeTimers)) {
-            let displayedValue = value - value % 1000;
-            let difference = new Date(currentTime - displayedValue);
-            let passed = difference.toTimeString().split(' ')[0];
-            $(`#activeTimer-${key}`).text(`Active: ${passed}`)
+        let currentTime = Date.now();
+        for (let [key, value] of Object.entries(activeTimers)) {
+            let difference = currentTime - value;
+            let rounder = difference % 1000;
+            let opp = 1000 - rounder;
+            if (opp < rounder) difference += opp;
+            else difference -= rounder;
+            $(`#activeTimer-${key}`).text(`Active: ${millisToDuration(difference)}`)
         }
-        for(let [key, value] of Object.entries(breakTimers)) {
-            let displayedValue = value - value % 1000;
-            let difference = new Date(currentTime-displayedValue);
-            let passed = difference.toTimeString().split(' ')[0];
-            $(`#breakTimer-${key}`).text(`On break: ${passed}`)
+        for (let [key, value] of Object.entries(breakTimers)) {
+            let difference = currentTime - value;
+            let rounder = difference % 1000;
+            let opp = 1000 - rounder;
+            if (opp < rounder) difference += opp;
+            else difference -= rounder;
+            $(`#breakTimer-${key}`).text(`On break: ${millisToDuration(difference)}`)
         }
     }
 </script>

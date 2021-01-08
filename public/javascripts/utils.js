@@ -1,4 +1,4 @@
-String.prototype.format = function() {
+String.prototype.format = function () {
     let a = this;
     let b;
     for (b in arguments) {
@@ -7,8 +7,14 @@ String.prototype.format = function() {
     return a;
 };
 
+function pad(string, size, padChar = '0') {
+    let padded = string;
+    while (padded.length < size) padded = `0${padded}`;
+    return padded;
+}
+
 function zeroPad(n) {
-    return `${n < 10 ? "0":""}${n}`;
+    return pad(n.toString(), 2);
 }
 
 function formatDate(date) {
@@ -18,8 +24,18 @@ function formatDate(date) {
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let seconds = date.getSeconds();
-    let timezone = date.toTimeString().split(' ')[1].slice(0,6);
+    let timezone = date.toTimeString().split(' ')[1].slice(0, 6);
     return `${zeroPad(day)}/${zeroPad(month)}/${zeroPad(year)} ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)} ${timezone}`;
+}
+
+function millisToDuration(ms) {
+    let seconds = Math.floor((ms / 1000) % 60);
+    if(seconds < 0) seconds = 0;
+    let minutes = Math.floor((ms / 1000 / 60) % 60);
+    if(minutes < 0) minutes = 0;
+    let hours = Math.floor(ms / 1000 / 60 / 60);
+    if(hours < 0) hours = 0;
+    return `${pad(hours.toString(), 2)}:${pad(minutes.toString(), 2)}:${pad(seconds.toString(), 2)}`
 }
 
 function uuid4(pattern) {
@@ -35,7 +51,7 @@ function uuid4(pattern) {
     array[6] |= 0b01000000 // set first four bits to 0100
 
     pattern = pattern || "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-    let idx = 0
+    let idx = 0;
 
     return pattern.replace(
         /XX/g,
