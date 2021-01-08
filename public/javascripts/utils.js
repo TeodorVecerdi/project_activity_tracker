@@ -58,3 +58,9 @@ function uuid4(pattern) {
         () => array[idx++].toString(16).padStart(2, "0"), // padStart ensures leading zero, if needed
     )
 }
+
+function htmlEncode(s) {
+    return s
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}

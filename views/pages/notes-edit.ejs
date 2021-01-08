@@ -3,45 +3,123 @@
 
 <head>
     <% include ../partials/head.ejs %>
+    <link rel="stylesheet" href="/stylesheets/notes.css">
+<!--    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/default.min.css">-->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/atom-one-dark.min.css">
+
+<!--  EnlighterJS themes  -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.atomic.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.beyond.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.classic.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.dracula.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.droide.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.eclipse.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.enlighter.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.godzilla.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.min.css">
 </head>
 
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
-<div class="container">
-    <h1 class="text-light text-center">Edit note <%= noteId %></h1>
-    <div class="form-row">
-        <div class="form-outline mb-4">
-            <input type="text" id="noteTitle" class="form-control text-light" />
-            <label class="form-label text-light" for="noteTitle">Note Title</label>
-        </div>
 
-        <div class="form-outline mb-4">
-            <textarea id="noteContents" class="form-control text-light"></textarea>
-            <label class="form-label text-light" for="noteContents">Note Contents</label>
+<div class="container-fluid mt-4">
+    <div class="d-flex flex-column mx-4">
+        <div class="d-flex flex-row justify-content-start">
+            <div class="col-6 bg-transparent text-start d-flex flex-row justify-content-between">
+                <div class="col-2 bg-warning ps-3 fs-3 text-decoration-underline">Edit note</div>
+                <div class="col-10">
+                    <input type="text" id="noteTitle" aria-label="Note Title"
+                           class="border-bottom-input titleInputField text-light bg-dark fs-5 float-end translate-middle-y ps-4 py-2 px-1 top-50 h-100 form-floating">
+                </div>
+            </div>
+            <div class="col-5 bg-transparent text-start d-flex flex-row justify-content-between">
+                <div class="col-3 bg-warning text-center fs-3">
+                    Link Project
+                </div>
+                <div class="col-9 border-bottom-input">
+                    <select aria-label="Link project" class=" bg-dark text-light border-0 h-100 w-100"
+                            name="linkProject" id="linkProject"></select>
+                </div>
+            </div>
+            <div class="col-1 bg-warning fs-3 text-end pe-3">Preview</div>
         </div>
-
-        <button type="button" class="btn btn-primary" id="saveNoteButton">Save</button>
+        <div class="d-flex flex-row justify-content-around">
+            <div class="col flex-grow-1 vh-85 note-editor-border">
+                <textarea aria-label="Note Contents" name="edit" id="noteContents"
+                          class="bg-dark text-light w-100 h-100 p-2"></textarea>
+            </div>
+            <div id="notePreview" class="col flex-grow-1 bg-dark vh-85 note-editor-border text-light p-3" style="overflow-y: auto"></div>
+        </div>
     </div>
 </div>
 
 <% include ../partials/footer.ejs %>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
+<script src="/javascripts/utils.js"></script>
 <script>
+
+    const renderer = new marked.Renderer();
+    marked.setOptions({
+        highlight: (code, language) => {
+            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+            if(hljs.getLanguage(language)) {
+                return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
+            }
+            return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
+        },
+        smartLists: true,
+        xhtml: true
+    });
+
+    hljs.initHighlighting();
+
     let noteId = "<%= noteId %>";
     let lastCommittedTitle = undefined;
     let lastCommittedContents = undefined;
     let lastCommittedProject = undefined;
+
+    let projectMap = {};
+    let activeProject = undefined;
+    let selectInput = $('#linkProject');
+
+    let noteTitleElement = $('#noteTitle');
+    let noteContentsElement = $('#noteContents');
+    let notePreviewElement = $('#notePreview');
+
+    let previewTimeout = undefined;
+    let saveTimeout = undefined;
 
     $(() => {
         getNote(noteId, note => {
             lastCommittedTitle = unescape(note.title);
             lastCommittedContents = unescape(note.contents);
             lastCommittedProject = note.linkedProject;
+            queuePreview();
+            refreshProjects();
+        })
+
+        noteContentsElement.bind('input propertychange', () => {
+            queuePreview();
+            queueAutoSave();
         });
 
-        $('#saveNoteButton').on('click', evt => {
-            let currentTitle = $('#noteTitle').val();
-            let currentContents = $('#noteContents').val();
-            update(currentTitle, currentContents);
+        noteTitleElement.bind('input propertychange', () => {
+            queueAutoSave();
+        });
+
+        selectInput.on('change', event => {
+            lastCommittedProject = event.target.value;
+            $.ajax({
+                url: '/notes/update/linked-project',
+                type: 'patch',
+                data: {noteId: noteId, linkedProject: event.target.value},
+                success: () => {
+                    refreshProjects();
+                }
+            });
         });
     });
 
@@ -59,13 +137,17 @@
     }
 
     function onLoadNote(data, callback) {
-        $('#noteTitle').val(unescape(data['note'].title));
-        $('#noteContents').val(unescape(data['note'].contents));
-        if(callback) callback(data['note']);
+        noteTitleElement.val(unescape(data['note'].title));
+        noteContentsElement.val(unescape(data['note'].contents));
+        if (callback) callback(data['note']);
     }
 
-    function update(title, contents, callback) {
-        if(title !== lastCommittedTitle) {
+    function saveChanges(callback) {
+        console.log("Saving!");
+        let title = noteTitleElement.val();
+        let contents = noteContentsElement.val();
+
+        if (title !== lastCommittedTitle) {
             $.ajax({
                 url: '/notes/update/title',
                 type: 'patch',
@@ -76,7 +158,7 @@
             });
         }
 
-        if(contents !== lastCommittedContents) {
+        if (contents !== lastCommittedContents) {
             $.ajax({
                 url: '/notes/update/contents',
                 type: 'patch',
@@ -87,6 +169,55 @@
             });
         }
     }
+
+    function refreshProjects(callback) {
+        $.ajax({
+            url: '/project/get',
+            type: 'get',
+            success: data => {
+                onLoadProjects(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadProjects(data, callback) {
+        // reset
+        projectMap = {};
+        selectInput.html("");
+
+        selectInput.append(`<option value='-1' ${lastCommittedProject === undefined ? 'selected' : ''}>None</option>`);
+        data.projects.forEach(project => {
+            projectMap[project.id] = project;
+            selectInput.append(`<option value='${project.id}' ${lastCommittedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
+        });
+        if (callback) callback();
+    }
+
+    function queuePreview() {
+        clearTimeout(previewTimeout);
+        previewTimeout = setTimeout(()=>previewNote(), 100);
+    }
+
+    function queueAutoSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(()=>saveChanges(), 1000);
+    }
+
+    function previewNote() {
+        let noteContents = noteContentsElement.val();
+        let markdown = marked(noteContents);
+        let purified = DOMPurify.sanitize(markdown);
+        notePreviewElement.html(purified);
+    }
+
+</script>
+<script type="module">
+import * as indentation from '/javascripts/indent-textarea/index.js';
+const noteContentsTextArea = document.querySelector('#noteContents');
+indentation.watch(noteContentsTextArea);
 </script>
 </body>
 </html>

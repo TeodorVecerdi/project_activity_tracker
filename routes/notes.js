@@ -155,12 +155,7 @@ router.patch('/update/linked-project', async (req, res, next) => {
 
     let noteLinkedProject = req.body.linkedProject;
     if (noteLinkedProject === undefined) {
-        res.status(400).render('pages/error', {
-            message_main: `Note linked project not specified (400 - Bad Request)`,
-            message_redirect: `Click <a href=\"/notes\">here</a> to go back to notes`,
-            message_page: "(You tried to update the linked project of a note without specifying the linked project ID :()",
-            activeTab: "error"
-        }).end();
+        res.status(400).end();
         return;
     }
 

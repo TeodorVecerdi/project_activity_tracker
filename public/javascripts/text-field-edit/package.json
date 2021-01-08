@@ -1,0 +1,57 @@
+{
+	"name": "text-field-edit",
+	"version": "3.1.0",
+	"description": "Insert text in a <textarea> and <input> (supports Firefox and Undo, where possible)",
+	"keywords": [
+		"at cursor",
+		"cross-browser",
+		"document",
+		"dom",
+		"editor",
+		"execCommand",
+		"field",
+		"form",
+		"inject",
+		"event",
+		"inserttext",
+		"manipulation",
+		"text area"
+	],
+	"repository": "fregante/text-field-edit",
+	"license": "MIT",
+	"type": "module",
+	"module": "index.js",
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"scripts": {
+		"build": "tsc",
+		"prepack": "tsc --sourceMap false",
+		"test": "npm-run-all --silent build --parallel test:*",
+		"test:blink": "browserify -p esmify test.js | tape-run --browser chrome",
+		"test:gecko": "browserify -p esmify test.js | tape-run --browser firefox",
+		"test:lint": "xo",
+		"watch": "tsc --watch"
+	},
+	"xo": {
+		"envs": [
+			"browser"
+		],
+		"rules": {
+			"@typescript-eslint/no-unnecessary-type-assertion": "off",
+			"@typescript-eslint/prefer-nullish-coalescing": "off",
+			"@typescript-eslint/prefer-readonly-parameter-types": "off"
+		}
+	},
+	"devDependencies": {
+		"@sindresorhus/tsconfig": "^0.7.0",
+		"browserify": "^16.5.1",
+		"esmify": "^2.1.1",
+		"npm-run-all": "^4.1.5",
+		"tape": "^5.0.0",
+		"tape-run": "^7.0.0",
+		"typescript": "^3.8.3",
+		"xo": "^0.30.0"
+	}
+}

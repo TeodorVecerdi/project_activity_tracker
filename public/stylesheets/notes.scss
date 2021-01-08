@@ -1,0 +1,60 @@
+@import "color-scheme";
+
+.titleInputField {
+  display: block;
+  border: none;
+  box-sizing: border-box;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  width: 100%;
+}
+
+.titleInputField::placeholder {
+  color: #B0BEC5;
+}
+
+.titleInputField:focus {
+  outline: none;
+}
+
+.note-editor-border {
+  border: 1px solid $primary;
+  &:first-of-type {
+    border-right-width: 0;
+  }
+}
+
+.code-block {
+  background: #282c34;
+  width: calc(100% - 0.66rem);
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+
+.border-bottom-input {
+  border-radius: 0;
+  border-bottom: 3px solid;
+  border-bottom-color: transparent !important;
+  transition: all;
+  transition-timing-function: ease-in-out;
+  transition-duration: 120ms;
+  &:hover {
+    border-bottom-color: rgba($primary, 0.75) !important;
+  }
+
+  &:focus, &:active, &:focus-within {
+    border-bottom-color: $primary !important;
+  }
+}
+
+
+#noteContents {
+  border: none;
+  resize: none;
+  outline: none;
+}
+#linkProject {
+  border: none;
+  resize: none;
+  outline: none;
+}
