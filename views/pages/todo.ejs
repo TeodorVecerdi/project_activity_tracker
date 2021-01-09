@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <% include ../partials/head.ejs %>
+    <link rel="stylesheet" href="/stylesheets/todo.css">
 </head>
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
@@ -24,7 +25,23 @@
             </div>
         </div>
     </form>
+    <div id="todoEditor-container" class="yeet" title="Close"></div>
+    <div id="todoEditor" class="yeet">
+        <div class="fs-2 text-white ms-3 mt-2">Edit Todo</div>
+        <button id="closeEditor" class="position-absolute btn align-content-center"><i class="fa fa-times"></i>
+        </button>
 
+        <div class="px-4 mt-4 row justify-content-start">
+            <div class="col-12">
+                <input id="todoEditor-titleInput" aria-label="Todo title" class="bg-dark text-light" type="text"
+                       placeholder="Title">
+            </div>
+            <div class="col-12 vh-55">
+                <textarea id="todoEditor-descriptionInput" aria-label="Todo description" class="bg-dark text-light"
+                          type="text" placeholder="Description"></textarea>
+            </div>
+        </div>
+    </div>
     <div id="todosContainer" class="row mt-5"></div>
 </div>
 
@@ -37,21 +54,27 @@
     let selectInput = $('#selectProject');
     let selectedProjectText = $('#selectedProject');
 
-    $('#add-todo-item-form').on('submit', (evt) => {
-        evt.preventDefault();
-        let formData = $('#add-todo-item-form').serialize();
-        $.ajax({
-            url: '/todo/add-todo',
-            type: 'post',
-            data: formData,
-            success: () => {
-                $('#add-todo-item-form').trigger('reset');
-                refreshTodos();
-            }
-        });
-    });
 
     $(() => {
+        $('#closeEditor, #todoEditor-container').on('click', () =>  {
+            $('#todoEditor').addClass('yeet');
+            $('#todoEditor-container').addClass('yeet');
+        });
+
+        $('#add-todo-item-form').on('submit', (evt) => {
+            evt.preventDefault();
+            let formData = $('#add-todo-item-form').serialize();
+            $.ajax({
+                url: '/todo/add-todo',
+                type: 'post',
+                data: formData,
+                success: () => {
+                    $('#add-todo-item-form').trigger('reset');
+                    refreshTodos();
+                }
+            });
+        });
+
         refreshProjects(() => {
             refreshTodos({makeDirty: true});
         });
@@ -120,14 +143,14 @@
 <div class="justify-content-around row mb-md-2 mb-4 pb-3 pb-md-0" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-priority="${priority}" data-todo-type="${type}" data-todo-done="${isDone}">
 <div class="d-flex flex-row flex-grow-1 justify-content-center align-self-center col-12 col-md-2">
 <button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changePriority" title="${priority === 0 ? 'Priority: Low' : priority === 1 ? 'Priority: Normal' : 'Priority: High'}">
-<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)':''}"></i></button>
+<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)' : ''}"></i></button>
 <button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changeType" title="${type === 0 ? 'Feature' : 'Bug'}">
 <i class="${type === 0 ? 'far fa-lightbulb text-warning' : 'fas fa-bug text-secondary'}"></i></button>
 <button type="button" class="btn btn-success btn-floating shadow-1-strong changeTodo" title="Mark as completed">
 <i class="fas fa-check"></i></button>
 </div>
 <div class="flex-grow-1 col-12 col-md-9 align-self-center">
-<div class="fs-5 text-center text-md-start text-shadow text-grey">${todo.text}</div>
+<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${todo.text}</div>
 </div>
 <button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
@@ -144,21 +167,21 @@
 <div class="justify-content-around row mb-md-2 mb-4 pb-3 pb-md-0" id="todo-${todo.id}" data-todo-id="${todo.id}" data-todo-priority="${priority}" data-todo-type="${type}" data-todo-done="${isDone}">
 <div class="d-flex flex-row flex-grow-1 justify-content-center align-self-center col-12 col-md-2">
 <button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changePriority" title="${priority === 0 ? 'Priority: Low' : priority === 1 ? 'Priority: Normal' : 'Priority: High'}">
-<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)':''}"></i></button>
+<i class="fas ${priority === 0 ? 'fa-caret-down fa-2x text-success' : priority === 1 ? 'fa-window-minimize fa-lg text-grey' : 'fa-caret-up fa-2x text-danger'}" style="${priority === 1 ? 'transform: translateY(-0.4rem)' : ''}"></i></button>
 <button type="button" class="btn btn-floating br-0 shadow-none bg-transparent changeType" title="${type === 0 ? 'Feature' : 'Bug'}">
 <i class="${type === 0 ? 'far fa-lightbulb text-warning' : 'fas fa-bug text-secondary'}"></i></button>
 <button type="button" class="btn btn-secondary btn-floating changeTodo" title="Mark not as completed">
 <i class="fas fa-times"></i></button>
 </div>
 <div class="flex-grow-1 col-12 col-md-9 align-self-center">
-<div class="fs-5 text-center text-md-start text-shadow text-grey">${todo.text}</div>
+<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${todo.text}</div>
 </div>
 <button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
 </div>`;
         });
-        if(notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${completed == '' ? -1 : 72}vh !important; overflow-y: auto">` + notCompleted + "</div>";
-        if(completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${notCompleted == '' ? -1 : 72}vh !important; overflow-y: auto">` + completed + "</div>";
+        if (notCompleted != '') notCompleted = `<h2 class="text-center text-primary mb-2">Not Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${completed == '' ? -1 : 72}vh !important; overflow-y: auto">` + notCompleted + "</div>";
+        if (completed != '') completed = `<h2 class="text-center text-primary${notCompleted != '' ? ' mt-3' : ''}">Completed</h2><hr class="text-white mb-2"/><div class="noScrollbar" style="max-height: ${notCompleted == '' ? -1 : 72}vh !important; overflow-y: auto">` + completed + "</div>";
         let todoEntries = notCompleted + completed;
 
         todosContainer.html(todoEntries);
@@ -215,6 +238,11 @@
                 }
             });
         });
+
+        $('.todo-link').on('click', () => {
+            $('#todoEditor').removeClass('yeet');
+            $('#todoEditor-container').removeClass('yeet');
+        })
 
         if (callback) callback();
     }

@@ -39,6 +39,33 @@ router.get('/get-todos', (req, res, next) => {
     }
 });
 
+router.get('/get-todo/:todoId', (req, res, next) => {
+    let selectedProject = serverState.selectedProject;
+    if (selectedProject === undefined) res.status(404).end();
+
+    let todoId = req.params.todoId;
+
+    if(req.query.hasOwnProperty('makeDirty')) {
+        let makeDirty = req.query['makeDirty'] == 'true';
+        if(makeDirty) serverState.todosDirty = true;
+    }
+
+    if (serverState.todosDirty) {
+        database.getTodos(selectedProject, todos => {
+            serverState.todos = [...todos];
+            serverState.todosDirty = false;
+
+            let todoIndex = todos.findIndex(todo => todo.id = todoId);
+            if(todoIndex === -1) res.status(404).end();
+            else res.status(200).send({todo: todos[todoIndex]});
+        })
+    } else {
+        let todoIndex = serverState.todos.findIndex(todo => todo.id = todoId);
+        if(todoIndex === -1) res.status(404).end();
+        else res.status(200).send({todo: serverState.todos[todoIndex]});
+    }
+});
+
 router.patch('/update-todo', (req, res, next) => {
     let todoId = req.body.id;
     let todoStatus = req.body.status == 'true';
@@ -85,6 +112,24 @@ router.patch('/update-todo-type', (req, res, next) => {
         if (changedIndex !== -1) serverState.todos[changedIndex].type = todoType;
         res.status(200).end();
     });
+});
+
+router.patch('/update-todo-description', (req, res, next) => {
+    let todoId = req.body.id;
+    let todoDescription = req.body.description;
+
+    let changedIndex = serverState.todos.findIndex(todo => todo.id == todoId);
+    if (changedIndex === -1) {
+        res.status(404).end();
+        serverState.todosDirty = true;
+    }
+
+/*
+    database.updateTodoDescription(todoId, todoDescription, () => {
+        if (changedIndex !== -1) serverState.todos[changedIndex].description = todoDescription;
+        res.status(200).end();
+    });
+*/
 });
 
 router.delete('/remove-todo', (req, res, next) => {
