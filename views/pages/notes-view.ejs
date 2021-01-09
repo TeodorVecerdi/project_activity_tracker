@@ -3,25 +3,67 @@
 
 <head>
     <% include ../partials/head.ejs %>
+    <link rel="stylesheet" href="/stylesheets/notes.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/atom-one-dark.min.css">
 </head>
 
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
 <div class="container">
-    <h1 class="text-light text-center">Viewing note <%= noteId %></h1>
-    <div class="text-light">
-        <h1 id="noteTitle"></h1>
-        <span style="white-space: pre" id="noteContents"></span>
+    <div class="d-flex flex-column mt-4 text-light">
+        <div class="row mb-1 border-bottom-input-lit">
+            <div id="noteTitle" class="fs-2 col-8"></div>
+            <div class="col-4"><a href="/notes/edit/<%= noteId %>" class="float-end btn btn-outline-primary">Edit
+                    Note</a></div>
+        </div>
+        <div id="noteLinkedProject" class="fs-5 mb-3">Linked Project...</div>
+
+        <div id="noteContents" class="bg-dark note-editor-border text-light p-3"></div>
     </div>
 </div>
 
 <% include ../partials/footer.ejs %>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
 
 <script>
+    let projectMap = {};
     let noteId = "<%= noteId %>";
+    let note = {};
+
     $(() => {
-       getNote(noteId);
+        refreshProjects(() => {
+            getNote(noteId, _note => {
+                note = _note;
+            });
+        })
     });
+
+    function refreshProjects(callback) {
+        $.ajax({
+            url: '/project/get',
+            type: 'get',
+            success: data => {
+                onLoadProjects(data, callback);
+            },
+            error: err => {
+                console.error(err);
+            }
+        });
+    }
+
+    function onLoadProjects(data, callback) {
+        // reset
+        projectMap = {
+            "-1": {id: -1, name: "None"}
+        };
+
+        data.projects.forEach(project => {
+            projectMap[project.id] = project;
+        });
+        if (callback) callback();
+    }
 
     function getNote(noteId, callback) {
         $.ajax({
@@ -37,9 +79,19 @@
     }
 
     function onLoadNote(data, callback) {
-        $('#noteTitle').text(unescape(data['note'].title));
-        $('#noteContents').text(unescape(data['note'].contents));
-        if(callback) callback(data['note']);
+        let noteTitle = unescape(data['note'].title);
+        if (noteTitle == '') noteTitle = '<i class="text-grey">Unnamed Note</i>';
+
+        let noteContents = unescape(data['note'].contents);
+        let noteLinkedProject = unescape(data['note'].linkedProject);
+
+        let markdown = marked(noteContents);
+        let purified = DOMPurify.sanitize(markdown);
+
+        $('#noteTitle').html(noteTitle);
+        $('#noteContents').html(purified);
+        $('#noteLinkedProject').html(`Linked project: <span class="text-grey font-weight-bold">${projectMap[noteLinkedProject].name}</span>`);
+        if (callback) callback(data['note']);
     }
 </script>
 </body>

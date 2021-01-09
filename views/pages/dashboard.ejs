@@ -15,15 +15,32 @@
                     name="selectProject" id="selectProject"></select>
         </div>
     </div>
-    <div id="entriesContainer" class="px-3 px-lg-0 row mt-5">
+    <div id="exportButtons" class="row d-none">
+        <div class="mt-5 mb-2 col-lg-3 col-md-6 col-12 btn btn-outline-primary csv-download">
+            Export as CSV
+            <i class="ps-2 fas fa-exclamation-triangle text-danger"
+               title="CSV exporting is not working properly. Use the PDF option instead."></i>
+        </div>
+        <div class="ms-0 ms-lg-2 mt-0 mt-md-5 mb-2 col-lg-3 col-md-6 col-12 btn btn-outline-primary pdf-download">Export
+            as PDF
+        </div>
+    </div>
+    <div id="entriesContainer" class="px-3 px-lg-0 row">
 
     </div>
 </div>
 
 <% include ../partials/footer.ejs %>
-
+<script data-main="/javascripts/requirejs/dashboard" src="/javascripts/require.js"></script>
 <script src="/javascripts/utils.js"></script>
+<script src="/javascripts/fonts.js"></script>
+
 <script>
+    const Roboto = {
+        regular: robotoRegular,
+        bold: robotoBold
+    }
+
     let projectMap = {};
     let activeProject = undefined;
     let selectInput = $('#selectProject');
@@ -48,6 +65,138 @@
                 }
             });
         });
+
+        $('.pdf-download').on('click', () => {
+            // Acquire data
+            let clone = $('#dashboardTable').clone();
+            let maxPages = clone.find('td').length;
+            let totalDuration = millisToDuration(clone.data('total-duration')+0);
+            let projectName = projectMap[activeProject]['name'];
+
+            clone.attr('id', 'tableClone');
+            clone.find('td.entryComment .entryCommentText').each((idx, td) => {
+                let text = $(td).html();
+                text = text.replace(/\n/g, '<br/>');
+                $(td).html(text);
+            })
+            clone.find('th').each((idx, th) => {
+                let html = $(th).html();
+                html = html.toUpperCase();
+                $(th).html(html);
+            });
+            $('body').append(clone);
+
+            const doc = new jspdf.jsPDF({
+                orientation: "landscape"
+            });
+
+            // Setup fonts
+            doc.addFileToVFS(Roboto.regular.fullName, Roboto.regular.base64);
+            doc.addFont(Roboto.regular.fullName, Roboto.regular.displayName, 'normal');
+            doc.setFont(Roboto.regular.displayName);
+            doc.addFileToVFS(Roboto.bold.fullName, Roboto.bold.base64);
+            doc.addFont(Roboto.bold.fullName, Roboto.bold.displayName, 'bold');
+            doc.setFont(Roboto.bold.displayName);
+
+            let docWidth = doc.internal.pageSize.getWidth();
+            let docHeight = doc.internal.pageSize.getHeight();
+
+            // Create extra pages
+            doc.setFontSize(14)
+            doc.setFillColor(23, 23, 23);
+            doc.setTextColor(255, 193, 8);
+            for(let i = 0; i < maxPages; i++) {
+                doc.addPage();
+                doc.rect(0, 0, 1000, 1000, "F");
+                doc.setFont("Roboto", "normal")
+                doc.text(14,10,"Timesheet report for");
+                doc.setFont("Roboto", "bold")
+                doc.text(60.5,10, projectName);
+                doc.setFont("Roboto", "normal")
+                doc.text(docWidth-67,10,"Total duration:");
+                doc.setFont("Roboto", "bold")
+                doc.text(docWidth-34,10, totalDuration);
+            }
+
+            doc.setPage(2);
+            doc.setFont("Roboto", "normal")
+            doc.autoTable({
+                styles: {
+                    font: 'Roboto',
+                    fontStyle: 'normal',
+                    overflow: 'linebreak'
+                },
+                headStyles: {
+                    fillColor: [255, 193, 8],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    cellPadding: {top: 2.75, right: 2, bottom: 2, left: 2}
+                },
+                bodyStyles: {
+                    fillColor: [22, 27, 29],
+                    textColor: [255, 255, 255],
+                    lineWidth: 0
+                },
+                alternateRowStyles: {
+                    fillColor: [13, 18, 18],
+                },
+                columnStyles: {
+                    0: {
+                        cellWidth: 20
+                    },
+                    1: {
+                        cellWidth: 57
+                    },
+                    2: {
+                        cellWidth: 57
+                    },
+                    3: {
+                        cellWidth: 25
+                    }
+                },
+                html: '#tableClone',
+                theme: 'grid',
+                margin: {top: 16, right: 14, bottom: 11, left: 14},
+                tableLineWidth: 0.3,
+                tableLineColor: [255, 193, 8]
+            });
+
+            // Cleanup extra pages
+            doc.deletePage(1);
+            let tablePages = doc.lastAutoTable.pageCount;
+            let totalPages = doc.internal.getNumberOfPages();
+            for(let i = 0; i < totalPages-tablePages; i++) {
+                doc.deletePage(tablePages+1);
+            }
+
+            // Write footer
+            let pageCount = doc.internal.getNumberOfPages();
+            for(i = 0; i < pageCount; i++) {
+                doc.setPage(i);
+                doc.setFont("Roboto", "normal")
+                doc.text(docWidth/2 - 11, docHeight - 3, "Page")
+                doc.setFont("Roboto", "bold")
+                doc.text(docWidth/2 - 11 + 13, docHeight - 3, doc.internal.getCurrentPageInfo().pageNumber + "/" + pageCount);
+            }
+            clone.remove();
+            doc.save(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.pdf`);
+        })
+
+        $('.csv-download').on('click', () => {
+            let csv = [];
+            let rows = $("#dashboardTable tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+
+                for (let j = 0; j < cols.length; j++)
+                    row.push("=\"" + cols[j].innerText + "\"");
+
+                csv.push(row.join(","));
+            }
+
+            download(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.csv`, csv.join('\n'));
+        });
     });
 
     function refreshProjects(callback) {
@@ -66,8 +215,10 @@
     function getEntries(callback) {
         let entriesContainer = $('#entriesContainer');
         if (activeProject === undefined) {
-            entriesContainer.html(`<span class="h2 col-12 text-center text-secondary">No project selected</span>`)
+            $('#exportButtons').addClass('d-none')
+            entriesContainer.html(`<span class="mt-5 h2 col-12 text-center text-secondary">No project selected</span>`)
         } else {
+            $('#exportButtons').removeClass('d-none');
             $.ajax({
                 url: '/project/get-entries',
                 type: 'get',
@@ -119,14 +270,13 @@
         let entriesContainer = $('#entriesContainer');
         let entries = data.entries;
         let tableEntries = '';
-
+        let totalDuration = 0;
         entries.forEach(entry => {
-            let durationTimestamp = entry.end - entry.start;
-            let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-            let duration = new Date(durationTimestamp + timezoneOffset);
+            let duration = entry.end - entry.start;
+            totalDuration += duration;
             let start = formatDate(new Date(entry.start - 0));
             let end = formatDate(new Date(entry.end - 0));
-            let durationString = duration.toTimeString().split(' ')[0]
+            let durationString = millisToDuration(duration)
 
             tableEntries += `<tr data-entry-id="${entry.id}" data-entry-has-comment=${(entry.comment != undefined && entry.comment != "")}>
                             <td>${entry.type}</td>
@@ -141,9 +291,8 @@
         });
         entriesContainer.html(
             `
-                <div class="mb-2 col-lg-2 col-12 btn btn-outline-primary csv-download">Export as CSV</div>
 <div style="width: 100%; max-width: 100%; overflow-x: auto">
-            <table class="col-12 mx-0 px-0 table table-dark text-primary entries">
+            <table id="dashboardTable" class="col-12 mx-0 px-0 table table-dark text-primary entries" data-total-duration="${totalDuration}">
                   <thead>
                     <tr>
                       <th class="fw-bold text-uppercase" scope="col">Type</th>
@@ -156,22 +305,6 @@
                   <tbody>${tableEntries}</tbody>
                 </table></div>`
         );
-
-        $('.csv-download').on('click', () => {
-            let csv = [];
-            let rows = $("table.entries tr");
-
-            for (let i = 0; i < rows.length; i++) {
-                let row = [], cols = rows[i].querySelectorAll("td, th");
-
-                for (let j = 0; j < cols.length; j++)
-                    row.push("=\"" + cols[j].innerText + "\"");
-
-                csv.push(row.join(","));
-            }
-
-            download(`data_${projectMap[activeProject].name.toLowerCase().replace(' ', '_')}__${uuid4('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')}.csv`, csv.join('\n'));
-        });
 
         $('.entryComment').on('dblclick', event => {
             let parent = $(event.currentTarget).parent();

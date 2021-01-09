@@ -11,6 +11,7 @@
 
 .titleInputField::placeholder {
   color: #B0BEC5;
+  font-style: italic;
 }
 
 .titleInputField:focus {
@@ -19,6 +20,7 @@
 
 .note-editor-border {
   border: 1px solid $primary;
+
   &:first-of-type {
     border-right-width: 0;
   }
@@ -31,6 +33,19 @@
   margin: 0.5rem 0;
 }
 
+.border-bottom-input-lit {
+  border-radius: 0;
+  border-bottom: 3px solid;
+  transition: all;
+  transition-timing-function: ease-in-out;
+  transition-duration: 120ms;
+  border-bottom-color: rgba($primary, 0.75) !important;
+
+  &:focus, &:active, &:focus-within {
+    border-bottom-color: $primary !important;
+  }
+}
+
 .border-bottom-input {
   border-radius: 0;
   border-bottom: 3px solid;
@@ -38,6 +53,7 @@
   transition: all;
   transition-timing-function: ease-in-out;
   transition-duration: 120ms;
+
   &:hover {
     border-bottom-color: rgba($primary, 0.75) !important;
   }
@@ -53,6 +69,7 @@
   resize: none;
   outline: none;
 }
+
 #linkProject {
   border: none;
   resize: none;

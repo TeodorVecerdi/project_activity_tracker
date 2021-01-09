@@ -9,6 +9,7 @@
 
 .titleInputField::placeholder {
   color: #B0BEC5;
+  font-style: italic;
 }
 
 .titleInputField:focus {
@@ -27,6 +28,18 @@
   width: calc(100% - 0.66rem);
   padding: 1rem;
   margin: 0.5rem 0;
+}
+
+.border-bottom-input-lit {
+  border-radius: 0;
+  border-bottom: 3px solid;
+  transition: all;
+  transition-timing-function: ease-in-out;
+  transition-duration: 120ms;
+  border-bottom-color: rgba(255, 193, 8, 0.75) !important;
+}
+.border-bottom-input-lit:focus, .border-bottom-input-lit:active, .border-bottom-input-lit:focus-within {
+  border-bottom-color: #ffc108 !important;
 }
 
 .border-bottom-input {

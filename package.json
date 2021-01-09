@@ -17,6 +17,8 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "indent-textarea": "^2.0.3",
+    "jspdf": "^2.2.0",
+    "jspdf-autotable": "^3.5.13",
     "mdb-ui-kit": "latest",
     "mdbootstrap": "^4.19.2",
     "mongodb": "^3.6.3",
