@@ -28,6 +28,20 @@
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
 
 <script>
+    marked.setOptions({
+        highlight: (code, language) => {
+            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+            if(hljs.getLanguage(language)) {
+                return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
+            }
+            return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
+        },
+        smartLists: true,
+        xhtml: true
+    });
+
+    hljs.initHighlighting();
+
     let projectMap = {};
     let noteId = "<%= noteId %>";
     let note = {};

@@ -51,7 +51,6 @@
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
 <script src="/javascripts/utils.js"></script>
 <script>
-    const renderer = new marked.Renderer();
     marked.setOptions({
         highlight: (code, language) => {
             const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
