@@ -4,13 +4,15 @@
 <head>
     <% include ../partials/head.ejs %>
     <link rel="stylesheet" href="/stylesheets/notes.css">
-<!--    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/default.min.css">-->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/atom-one-dark.min.css">
+    <!--    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/default.min.css">-->
+    <link rel="stylesheet"
+          href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/atom-one-dark.min.css">
 </head>
 
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
-<div class="alert alert-absolute bg-primary border-1 border-white text-white alert-dismissible fade show bottom-0 end-0 " role="alert">
+<div class="alert alert-absolute bg-primary border-1 border-white text-white alert-dismissible fade show bottom-0 end-0 "
+     role="alert">
     <strong class="pe-5 ps-2">Saved!</strong>
     <button class=" btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
@@ -18,10 +20,11 @@
     <div class="d-flex flex-column mx-4">
         <div class="d-flex flex-row justify-content-start">
             <div class="col-6 bg-transparent text-start d-flex flex-row justify-content-between">
-                <div class="col-2 bg-warning ps-3 fs-3 text-decoration-underline">Edit note</div>
+                <div class="col-2 bg-warning ps-3 fs-3">Edit note</div>
                 <div class="col-10">
                     <input type="text" id="noteTitle" aria-label="Note Title"
-                           class="border-bottom-input titleInputField text-light bg-dark fs-5 ps-4 py-2 px-1 h-100" placeholder="Unnamed Note">
+                           class="border-bottom-input titleInputField text-light bg-dark fs-5 ps-4 py-2 px-1 h-100"
+                           placeholder="Unnamed Note">
                 </div>
             </div>
             <div class="col-5 bg-transparent text-start d-flex flex-row justify-content-between">
@@ -33,14 +36,15 @@
                             name="linkProject" id="linkProject"></select>
                 </div>
             </div>
-            <div class="col-1 bg-warning fs-3 text-end pe-3">Preview</div>
+            <div class="col-1 bg-warning fs-3 text-end pe-3" id="notePreviewLink">Preview</div>
         </div>
         <div class="d-flex flex-row justify-content-around">
             <div class="col-6 flex-grow-1 vh-85 note-editor-border">
                 <textarea aria-label="Note Contents" name="edit" id="noteContents"
                           class="bg-dark text-light w-100 h-100 p-3"></textarea>
             </div>
-            <div id="notePreview" class="col-6 flex-grow-1 bg-dark vh-85 note-editor-border text-light p-3" style="overflow-y: auto"></div>
+            <div id="notePreview" class="col-6 flex-grow-1 bg-dark vh-85 note-editor-border text-light p-3"
+                 style="overflow-y: auto"></div>
         </div>
     </div>
 </div>
@@ -54,7 +58,7 @@
     marked.setOptions({
         highlight: (code, language) => {
             const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-            if(hljs.getLanguage(language)) {
+            if (hljs.getLanguage(language)) {
                 return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
             }
             return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
@@ -83,7 +87,7 @@
 
     $(() => {
         $(window).on('keydown', event => {
-            if(event.keyCode === 83 && event.ctrlKey) {
+            if (event.keyCode === 83 && event.ctrlKey) {
                 event.preventDefault();
                 clearTimeout(previewTimeout);
                 clearTimeout(saveTimeout);
@@ -122,6 +126,10 @@
                 }
             });
         });
+
+        $('#notePreviewLink').on('click', () => {
+            window.location.href = `/notes/view/${noteId}`;
+        })
     });
 
     function getNote(noteId, callback) {
@@ -155,6 +163,7 @@
                 data: {noteId: noteId, title: escape(title)},
                 success: () => {
                     console.log("Successfully saved title");
+                    lastCommittedTitle = title;
                 }
             });
         }
@@ -166,6 +175,7 @@
                 data: {noteId: noteId, contents: escape(contents)},
                 success: () => {
                     console.log("Successfully saved contents");
+                    lastCommittedContents = contents;
                 }
             });
         }
@@ -199,12 +209,12 @@
 
     function queuePreview() {
         clearTimeout(previewTimeout);
-        previewTimeout = setTimeout(()=>previewNote(), 100);
+        previewTimeout = setTimeout(() => previewNote(), 100);
     }
 
     function queueAutoSave() {
         clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(()=>saveChanges(), 1000);
+        saveTimeout = setTimeout(() => saveChanges(), 1000);
     }
 
     function previewNote() {
@@ -216,9 +226,10 @@
 
 </script>
 <script type="module">
-import * as indentation from '/javascripts/indent-textarea/index.js';
-const noteContentsTextArea = document.querySelector('#noteContents');
-indentation.watch(noteContentsTextArea);
+    import * as indentation from '/javascripts/indent-textarea/index.js';
+
+    const noteContentsTextArea = document.querySelector('#noteContents');
+    indentation.watch(noteContentsTextArea);
 </script>
 </body>
 </html>

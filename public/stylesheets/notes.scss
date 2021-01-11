@@ -75,3 +75,11 @@
   resize: none;
   outline: none;
 }
+
+#notePreviewLink {
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}

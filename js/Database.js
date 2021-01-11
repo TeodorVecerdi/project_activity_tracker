@@ -118,7 +118,10 @@ class Database {
                 if (err) throw err;
                 this.con.query('delete from todos where PROJECT_ID = ?', [id], (err, res) => {
                     if (err) throw err;
-                    if (callback) callback();
+                    this.con.query('update notes set PROJECT_ID = -1 where PROJECT_ID = ?', [id], (err, res) => {
+                        if (err) throw err;
+                        if (callback) callback();
+                    });
                 });
             });
         })

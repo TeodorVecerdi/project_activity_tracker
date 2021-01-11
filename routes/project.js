@@ -40,6 +40,8 @@ router.delete('/remove', (req, res) => {
 
     serverState.removeProject(req.body.id);
     database.removeProject(req.body.id, () => {
+        serverState.notesDirty = true;
+        serverState.todosDirty = true;
         res.status(200).end();
     });
 })

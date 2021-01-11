@@ -69,4 +69,12 @@
   outline: none;
 }
 
+#notePreviewLink {
+  cursor: pointer;
+  user-select: none;
+}
+#notePreviewLink:hover {
+  text-decoration: underline;
+}
+
 /*# sourceMappingURL=notes.css.map */
