@@ -67,6 +67,7 @@ class Database {
                 todos.push({
                     id: todo.ID,
                     text: todo.TEXT,
+                    description: todo.DESCRIPTION,
                     done: todo.DONE,
                     priority: todo.PRIORITY,
                     type: todo.TYPE
@@ -76,7 +77,7 @@ class Database {
         })
     }
 
-    updateTodo(todoId, done, callback) {
+    updateTodoDone(todoId, done, callback) {
         this.con.query('UPDATE todos SET DONE=? WHERE ID=?', [done, todoId], (err, res) => {
             if (err) throw err;
             if (callback) callback();
@@ -92,6 +93,19 @@ class Database {
 
     updateTodoType(todoId, type, callback) {
         this.con.query('UPDATE todos SET TYPE=? WHERE ID=?', [type, todoId], (err, res) => {
+            if (err) throw err;
+            if (callback) callback();
+        })
+    }
+
+    updateTodoTitle(todoId, title, callback) {
+        this.con.query('UPDATE todos SET TEXT=? WHERE ID=?', [title, todoId], (err, res) => {
+            if (err) throw err;
+            if (callback) callback();
+        })
+    }
+    updateTodoDescription(todoId, description, callback) {
+        this.con.query('UPDATE todos SET DESCRIPTION=? WHERE ID=?', [description, todoId], (err, res) => {
             if (err) throw err;
             if (callback) callback();
         })

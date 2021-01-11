@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <% include ../partials/head.ejs %>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="/stylesheets/todo.css">
 </head>
 <body class="bg-dark-blue">
@@ -33,12 +34,14 @@
 
         <div class="px-4 mt-4 row justify-content-start">
             <div class="col-12">
-                <input id="todoEditor-titleInput" aria-label="Todo title" class="bg-dark text-light" type="text"
-                       placeholder="Title">
+                <input id="todoEditor-titleInput" aria-label="Todo title" class="bg-dark text-light d-none" type="text"
+                       placeholder="Title" value="Title">
+                <div id="todoEditor-titleInput-rendered" class="bg-dark text-light noScrollbar">Title</div>
             </div>
             <div class="col-12 vh-55">
-                <textarea id="todoEditor-descriptionInput" aria-label="Todo description" class="bg-dark text-light"
-                          type="text" placeholder="Description"></textarea>
+                <textarea id="todoEditor-descriptionInput" aria-label="Todo description" class="bg-dark text-light d-none"
+                          type="text" placeholder="Description">Description</textarea>
+                <div id="todoEditor-descriptionInput-rendered" class="bg-dark text-light">Description</div>
             </div>
         </div>
     </div>
@@ -47,18 +50,121 @@
 
 <% include ../partials/footer.ejs %>
 
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
 <script src="/javascripts/utils.js"></script>
 <script>
+    marked.setOptions({
+        highlight: (code, language) => {
+            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+            if(hljs.getLanguage(language)) {
+                return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
+            }
+            return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
+        },
+        smartLists: true,
+        xhtml: true
+    });
+
+    hljs.initHighlighting();
+
     let projectMap = {};
     let activeProject = undefined;
     let selectInput = $('#selectProject');
     let selectedProjectText = $('#selectedProject');
 
+    let todoMap = {};
+
+    let todoEditor_titleInput = $('#todoEditor-titleInput');
+    let todoEditor_titleInput_rendered = $('#todoEditor-titleInput-rendered');
+    let todoEditor_descriptionInput = $('#todoEditor-descriptionInput');
+    let todoEditor_descriptionInput_rendered = $('#todoEditor-descriptionInput-rendered');
+    let todoEditor_todoId = undefined;
+    let todoEditor_titleOld = undefined;
+    let todoEditor_descriptionOld = undefined;
+    let todoEditor_keyFocusOut = false;
 
     $(() => {
-        $('#closeEditor, #todoEditor-container').on('click', () =>  {
+        $('#closeEditor, #todoEditor-container').on('click', () => {
             $('#todoEditor').addClass('yeet');
             $('#todoEditor-container').addClass('yeet');
+        });
+
+        todoEditor_titleInput_rendered.on('dblclick', () => {
+            todoEditor_titleInput_rendered.addClass('d-none');
+            todoEditor_titleInput.removeClass('d-none');
+            todoEditor_titleOld = unescape(todoMap[todoEditor_todoId].text);
+            todoEditor_titleInput.val(todoEditor_titleOld);
+            todoEditor_titleInput.select();
+        });
+
+        todoEditor_titleInput.on('focusout', event => {
+            console.log("FOCUS OUT");
+            if(todoEditor_keyFocusOut) {
+                todoEditor_keyFocusOut = false;
+                return;
+            }
+            let newVal = todoEditor_titleInput.val();
+            todoEditor_titleInput_rendered.removeClass('d-none');
+            todoEditor_titleInput.addClass('d-none');
+            if(newVal !== todoEditor_titleOld) todoEditor_titleInput_rendered.html(renderMarkdown(newVal, true));
+            saveTodoChanges();
+        });
+        todoEditor_titleInput.on('keyup', event => {
+            const ENTER = "Enter";
+            const ESC = "Escape";
+            if(event.key === ENTER) {
+                console.log("ENTER KEY");
+                let newVal = todoEditor_titleInput.val();
+                todoEditor_titleInput_rendered.removeClass('d-none');
+                todoEditor_titleInput.addClass('d-none');
+                if(newVal !== todoEditor_titleOld) todoEditor_titleInput_rendered.html(renderMarkdown(newVal, true));
+                todoEditor_keyFocusOut = true;
+                saveTodoChanges();
+            } else if(event.key === ESC) {
+                console.log("ESCAPE KEY");
+                todoEditor_titleInput_rendered.removeClass('d-none');
+                todoEditor_titleInput.addClass('d-none');
+                todoEditor_keyFocusOut = true;
+            }
+        });
+        todoEditor_descriptionInput_rendered.on('dblclick', () => {
+            todoEditor_descriptionInput_rendered.addClass('d-none');
+            todoEditor_descriptionInput.removeClass('d-none');
+            todoEditor_descriptionOld = unescape(todoMap[todoEditor_todoId].description);
+            todoEditor_descriptionInput.val(todoEditor_descriptionOld);
+            todoEditor_descriptionInput.select();
+        });
+        todoEditor_descriptionInput.on('focusout', event => {
+            console.log("FOCUS OUT");
+            if(todoEditor_keyFocusOut) {
+                todoEditor_keyFocusOut = false;
+                return;
+            }
+            let newVal = todoEditor_descriptionInput.val();
+            todoEditor_descriptionInput_rendered.removeClass('d-none');
+            todoEditor_descriptionInput.addClass('d-none');
+            if(newVal !== todoEditor_descriptionOld) todoEditor_descriptionInput_rendered.html(renderMarkdown(newVal));
+            saveTodoChanges();
+        });
+        todoEditor_descriptionInput.on('keyup', event => {
+            const ENTER = "Enter";
+            const ESC = "Escape";
+            if(event.key === ENTER && event.ctrlKey) {
+                console.log("ENTER KEY");
+                let newVal = todoEditor_descriptionInput.val().trimEnd();
+                todoEditor_descriptionInput_rendered.removeClass('d-none');
+                todoEditor_descriptionInput.addClass('d-none');
+                if(newVal !== todoEditor_descriptionOld) todoEditor_descriptionInput_rendered.html(renderMarkdown(newVal));
+                todoEditor_keyFocusOut = true;
+                saveTodoChanges();
+            } else if(event.key === ESC) {
+                console.log("ESCAPE KEY");
+                todoEditor_descriptionInput_rendered.removeClass('d-none');
+                todoEditor_descriptionInput.addClass('d-none');
+                todoEditor_keyFocusOut = true;
+            }
         });
 
         $('#add-todo-item-form').on('submit', (evt) => {
@@ -131,10 +237,12 @@
     function onLoadTodos(data, callback) {
         let todosContainer = $('#todosContainer');
         todosContainer.html("");
+        todoMap = {};
 
         let todos = data.todos;
         let notCompleted = '';
         todos.forEach(todo => {
+            todoMap[todo.id] = todo;
             let isDone = todo.done;
             if (isDone == true) return;
             let priority = parseInt(todo.priority);
@@ -150,7 +258,7 @@
 <i class="fas fa-check"></i></button>
 </div>
 <div class="flex-grow-1 col-12 col-md-9 align-self-center">
-<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${todo.text}</div>
+<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${renderMarkdown(unescape(todo.text), true)}</div>
 </div>
 <button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
@@ -174,7 +282,7 @@
 <i class="fas fa-times"></i></button>
 </div>
 <div class="flex-grow-1 col-12 col-md-9 align-self-center">
-<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${todo.text}</div>
+<div class="fs-5 text-center text-md-start text-shadow text-grey"><i class="fas fa-pen text-white p-2 me-2 todo-link"></i>${renderMarkdown(unescape(todo.text), true)}</div>
 </div>
 <button type="button" class="align-self-center col-12 col-md-1 mx-1 mt-2 mt-md-0 btn btn-primary btn-floating removeTodo" title="Remove">
 <i class="fas fa-trash-alt"></i></button>
@@ -239,9 +347,10 @@
             });
         });
 
-        $('.todo-link').on('click', () => {
-            $('#todoEditor').removeClass('yeet');
-            $('#todoEditor-container').removeClass('yeet');
+        $('.todo-link').on('click', ({currentTarget}) => {
+            let todoId = $(currentTarget).parent().parent().parent().data('todo-id');
+            console.log(todoMap[todoId]);
+            openTodoEditor(todoId);
         })
 
         if (callback) callback();
@@ -254,7 +363,7 @@
 
         selectInput.append(`<option value='' ${data.selectedProject === undefined || data.selectedProject == -1 ? 'selected' : ''} disabled>Select a project</option>`);
         data.projects.forEach(project => {
-            if(project.hidden) return;
+            if (project.hidden) return;
             projectMap[project.id] = project;
             selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
 
@@ -268,6 +377,64 @@
 
         if (callback) callback();
     }
+
+    function openTodoEditor(todoId) {
+        $('#todoEditor').removeClass('yeet');
+        $('#todoEditor-container').removeClass('yeet');
+        todoEditor_todoId = todoId;
+        let todo = todoMap[todoId];
+
+        let todoTitle = renderMarkdown(unescape(todo.text), true);
+        let todoDesc = renderMarkdown(unescape(todo.description) || "_No Description_");
+
+        todoEditor_titleInput.val(unescape(todo.text));
+        todoEditor_titleInput_rendered.html(todoTitle);
+        todoEditor_descriptionInput.val(unescape(todo.description) || "_No Description_");
+        todoEditor_descriptionInput_rendered.html(todoDesc);
+    }
+
+    function updateTodoTitle(todoTitle) {
+        $.ajax({
+            url: '/todo/update-todo-title',
+            type: 'patch',
+            data: {id: todoEditor_todoId, title: escape(todoTitle)},
+            success: () => {
+                refreshTodos();
+            }
+        });
+    }
+    function updateTodoDescription(todoDescription) {
+        $.ajax({
+            url: '/todo/update-todo-description',
+            type: 'patch',
+            data: {id: todoEditor_todoId, description: escape(todoDescription)},
+            success: () => {
+                refreshTodos();
+            }
+        });
+    }
+    function renderMarkdown(markdown, parseInline) {
+        if(parseInline) return DOMPurify.sanitize(marked.parseInline(markdown));
+        return DOMPurify.sanitize(marked(markdown));
+    }
+    function saveTodoChanges() {
+        console.log("Saving!");
+        let title = todoEditor_titleInput.val();
+        let description = todoEditor_descriptionInput.val();
+        console.log(title);
+        console.log(description)
+
+        if (title !== todoEditor_titleOld) {
+            todoEditor_titleOld = title;
+            updateTodoTitle(title);
+        }
+
+        if (description !== todoEditor_descriptionOld) {
+            todoEditor_descriptionOld = description;
+            updateTodoDescription(description)
+        }
+    }
+
 </script>
 </body>
 </html>

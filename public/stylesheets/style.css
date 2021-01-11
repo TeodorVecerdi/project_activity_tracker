@@ -470,4 +470,35 @@
   float: right !important;
 }
 
+.code-block {
+  font-family: "Fira Code", monospace !important;
+  position: relative;
+  background: #282c34;
+  width: calc(100% - 0.66rem);
+  padding: 1.5rem 1rem 1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.lang-preview {
+  background-color: #282c34;
+  position: absolute;
+  padding: 0.45rem 1rem 0.1rem;
+  left: 0;
+  top: -1rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-weight: bold;
+  user-select: none;
+  color: #ffc108;
+}
+
+p > code {
+  background-color: #282c34;
+  padding: 0.45rem 0.6rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  border-radius: 8px;
+  color: #ffc108;
+}
+
 /*# sourceMappingURL=style.css.map */

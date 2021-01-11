@@ -63,44 +63,96 @@
 #todoEditor #closeEditor:focus, #todoEditor #closeEditor:focus-within, #todoEditor #closeEditor:focus-visible {
   box-shadow: 0.1rem 0.1rem 0.6rem #886500;
 }
-#todoEditor #todoEditor-titleInput {
-  display: block;
+#todoEditor .form-border, #todoEditor #todoEditor-descriptionInput-rendered, #todoEditor #todoEditor-descriptionInput, #todoEditor #todoEditor-titleInput-rendered, #todoEditor #todoEditor-titleInput {
   border: 2px dashed rgba(255, 193, 8, 0.6);
+  resize: none;
+  transition: border 150ms ease-in-out;
+}
+#todoEditor .form-border:hover, #todoEditor #todoEditor-descriptionInput-rendered:hover, #todoEditor #todoEditor-descriptionInput:hover, #todoEditor #todoEditor-titleInput-rendered:hover, #todoEditor #todoEditor-titleInput:hover {
+  border-color: #ffc108;
+}
+#todoEditor .form-border:focus, #todoEditor #todoEditor-descriptionInput-rendered:focus, #todoEditor #todoEditor-descriptionInput:focus, #todoEditor #todoEditor-titleInput-rendered:focus, #todoEditor #todoEditor-titleInput:focus {
+  border-color: #ffc108;
+  border-style: solid;
+  outline: none;
+}
+#todoEditor #todoEditor-titleInput {
+  position: absolute;
+  top: 5rem;
+  left: 1rem;
+  display: block;
+  border-style: dashed;
   box-sizing: border-box;
   margin-bottom: 1rem;
   height: 3.5rem;
   padding: 2rem 1rem;
   font-size: 2rem;
-  width: 100%;
+  width: calc(100% - 2rem);
+  outline: none;
   transition: border 150ms ease-in-out;
 }
-#todoEditor #todoEditor-titleInput:hover {
+#todoEditor #todoEditor-titleInput:hover, #todoEditor #todoEditor-titleInput:focus {
+  border-style: dashed;
   border-color: #ffc108;
 }
-#todoEditor #todoEditor-titleInput:focus {
-  border-color: #ffc108;
-  border-style: solid;
-  outline: none;
+#todoEditor #todoEditor-titleInput-rendered {
+  position: absolute;
+  top: 5rem;
+  left: 1rem;
+  width: calc(100% - 2rem);
+  padding: 0.5rem 1rem 3.5rem;
+  background-color: transparent !important;
+  display: block;
+  border-style: solid !important;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  height: 3.5rem;
+  font-size: 2rem;
+  user-select: none;
+  cursor: pointer;
+  overflow-x: auto;
+  transition: border 150ms ease-in-out;
 }
 #todoEditor #todoEditor-descriptionInput {
+  position: absolute;
+  top: 10rem;
+  left: 1rem;
   display: block;
-  border: 2px dashed rgba(255, 193, 8, 0.6);
+  border-style: dashed;
   box-sizing: border-box;
   margin-bottom: 1rem;
   padding: 0.5rem;
   font-size: 1.25rem;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 2rem);
+  height: calc(100% - 11rem);
   resize: none;
   transition: border 150ms ease-in-out;
 }
-#todoEditor #todoEditor-descriptionInput:hover {
+#todoEditor #todoEditor-descriptionInput:hover, #todoEditor #todoEditor-descriptionInput:focus {
+  border-style: dashed;
   border-color: #ffc108;
 }
-#todoEditor #todoEditor-descriptionInput:focus {
-  border-color: #ffc108;
+#todoEditor #todoEditor-descriptionInput-rendered {
+  position: absolute;
+  top: 10rem;
+  left: 1rem;
+  display: block;
+  border-style: solid !important;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  width: calc(100% - 2rem);
+  height: calc(100% - 11rem);
+  resize: none;
+  user-select: none;
+  cursor: pointer;
+  transition: border 150ms ease-in-out;
+  overflow: auto;
+}
+#todoEditor #todoEditor-descriptionInput-rendered:hover, #todoEditor #todoEditor-descriptionInput-rendered:focus {
   border-style: solid;
-  outline: none;
+  border-color: #ffc108;
 }
 
 .todo-link {
