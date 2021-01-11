@@ -117,6 +117,23 @@ router.put('/select-project', (req, res) => {
     res.status(200).end();
 });
 
+router.patch('/change-hidden', (req, res, next) => {
+    let projectId = req.body.id;
+    let selectedIndex = serverState.projects.findIndex(project => project.id == projectId);
+    if(selectedIndex === -1) {
+        serverState.projectsDirty = true;
+        res.status(404).end();
+        return;
+    }
+
+    let isHidden = serverState.projects[selectedIndex].hidden;
+    serverState.projects[selectedIndex].hidden = !isHidden;
+    if(serverState.selectedProject == projectId) serverState.selectedProject = -1;
+    res.status(200).end();
+
+    database.setProjectHidden(projectId, isHidden ? 0 : 1);
+});
+
 router.get('/get-entries', (req, res) => {
     let selectedProject = serverState.selectedProject;
     if (selectedProject === undefined) res.status(404).end();

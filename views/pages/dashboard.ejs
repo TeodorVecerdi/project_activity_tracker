@@ -103,7 +103,6 @@
 
             // Create extra pages
             doc.setFontSize(14)
-            doc.setFillColor(23, 23, 23);
             doc.setTextColor(255, 193, 8);
             for(let i = 0; i < maxPages; i++) {
                 doc.addPage();
@@ -237,8 +236,9 @@
         projectMap = {};
         selectInput.html("");
 
-        selectInput.append(`<option value='' ${data.selectedProject === undefined ? 'selected' : ''} disabled>Select a project</option>`);
+        selectInput.append(`<option value='' ${data.selectedProject === undefined || data.selectedProject == -1 ? 'selected' : ''} disabled>Select a project</option>`);
         data.projects.forEach(project => {
+            if(project.hidden) return;
             projectMap[project.id] = project;
             selectInput.append(`<option value='${project.id}' ${data.selectedProject == project.id ? 'selected' : ''}>${project.name}</option>`)
 

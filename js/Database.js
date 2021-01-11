@@ -127,13 +127,20 @@ class Database {
         })
     }
 
+    setProjectHidden(id, hidden, callback) {
+        this.con.query('update projects set HIDDEN = ? WHERE ID = ?', [hidden, id], (err, res) => {
+            if(err) throw err;
+            if(callback) callback();
+        })
+    }
+
     getProjects(callback) {
         console.log("Retrieved projects from DB");
         this.con.query('select * from projects', (err, res) => {
             if (err) throw err;
             let projects = [];
             res.forEach(project => {
-                projects.push({id: project.ID, name: project.NAME});
+                projects.push({id: project.ID, name: project.NAME, hidden: project.HIDDEN});
             });
 
             if (callback) callback(projects);

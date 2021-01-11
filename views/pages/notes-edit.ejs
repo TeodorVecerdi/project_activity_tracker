@@ -199,7 +199,7 @@
         projectMap = {};
         selectInput.html("");
 
-        selectInput.append(`<option value='-1' ${lastCommittedProject === undefined ? 'selected' : ''}>None</option>`);
+        selectInput.append(`<option value='-1' ${lastCommittedProject === undefined || lastCommittedProject == -1 ? 'selected' : ''}>None</option>`);
         data.projects.forEach(project => {
             projectMap[project.id] = project;
             selectInput.append(`<option value='${project.id}' ${lastCommittedProject == project.id ? 'selected' : ''}>${project.name}</option>`)

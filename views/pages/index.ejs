@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <% include ../partials/head.ejs %>
+    <link rel="stylesheet" href="/stylesheets/projects.css">
 </head>
 <body class="bg-dark-blue">
 <% include ../partials/navbar.ejs %>
@@ -21,8 +22,17 @@
         </div>
     </form>
     <section class="mt-5">
+        <div class="row mb-2">
+            <div class="col-12 col-lg-3">
+                <div id="hideProjectsButton" class="btn btn-block btn-outline-primary">Hide Projects</div>
+            </div>
+        </div>
         <h1 class="title text-light">Projects</h1>
-        <div id="projects">
+        <div id="projectsContainer">
+            <div id="projects">
+            </div>
+            <div id="projectsHide" class="d-none">
+            </div>
         </div>
     </section>
 </div>
@@ -38,18 +48,24 @@
         setInterval(() => {
             updateTimers();
         }, 75);
-    });
-    $('#add-project-form').on('submit', (evt) => {
-        evt.preventDefault();
-        let formData = $('#add-project-form').serialize();
-        $.ajax({
-            url: '/project/create',
-            type: 'post',
-            data: formData,
-            success: () => {
-                $('#add-project-form').trigger('reset');
-                refreshProjects();
-            }
+
+        $('#hideProjectsButton').on('click', () => {
+            $('#projects').toggleClass('d-none');
+            $('#projectsHide').toggleClass('d-none');
+        });
+
+        $('#add-project-form').on('submit', evt => {
+            evt.preventDefault();
+            let formData = $('#add-project-form').serialize();
+            $.ajax({
+                url: '/project/create',
+                type: 'post',
+                data: formData,
+                success: () => {
+                    $('#add-project-form').trigger('reset');
+                    refreshProjects();
+                }
+            });
         });
     });
 
@@ -69,12 +85,14 @@
     function onLoadProjects(data) {
         // Reset
         $('#projects').html("");
+        $('#projectsHide').html("");
         activeTimers = {};
         breakTimers = {};
 
         data.projects.forEach(project => {
             let isActive = data.activeProjects.hasOwnProperty(project.id);
             let isBreakActive = data.activeBreaks.hasOwnProperty(project.id);
+            let isHidden = project.hidden == 1;
             let titleClasses = isActive ? isBreakActive ? 'fst-italic text-secondary' : 'text-primary' : 'text-grey';
             let activeButtonClasses = `btn ${isActive ? 'btn-primary' : 'btn-outline-primary'}`;
             let breakButtonClasses = `btn ${isBreakActive ? 'btn' : 'btn-outline'}-${isActive ? "secondary" : "blue-grey disabled border"}`;
@@ -82,8 +100,10 @@
             let activeTimer = isActive ? `<span id="activeTimer-${project.id}" class="fw-light text-primary">Active: 00:00:00</span>` : "";
             let breakTimer = isBreakActive ? `<span id="breakTimer-${project.id}" class="fw-light text-secondary">On break: 00:00:00</span>` : "";
             let timers = isActive || isBreakActive ? `<span class="text-light fst-normal float-end">(${activeTimer}${isActive && isBreakActive ? ',&nbsp;' : ''}${breakTimer})</span>` : '';
+
+            if(!isHidden)
             $('#projects').append(`
-                    <div class="project-item mb-2 mt-3 mt-lg-0 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}">
+                    <div class="project-item mb-2 mt-3 mt-lg-0 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}" data-project-hidden="${project.hidden}">
                         <span class="fs-6 fs-lg-4 fw-bold col-12 col-lg-7 project-title align-self-center text-shadow ${titleClasses}">${project.name}
                             ${timers}
                         </span>
@@ -95,11 +115,37 @@
                     </div>
                     `);
 
+            $('#projectsHide').append(`
+                    <div class="project-item mb-2 mt-3 mt-lg-0 row" id="project-${project.id}" data-project-id="${project.id}" data-project-active="${isActive}" data-break-active="${isBreakActive}" data-project-hidden="${project.hidden}">
+                        <button type="button" class="btn btn-${isHidden ? 'secondary':'success'} btn-floating changeHidden" title="${isHidden ? 'Hidden' : 'Shown'}">
+                        <i class="fas fa-${isHidden ? 'eye-slash' : 'eye'}"></i></button>
+                        <span class="fs-6 fs-lg-4 fw-bold col-12 col-lg-11 project-title align-self-center text-shadow ${isHidden ? 'text-secondary fst-italic' : 'text-grey'}">${project.name}
+                            ${timers}
+                        </span>
+                        <button type="button" class="col-1 col-lg-1 mx-0 mx-lg-1 btn btn-primary btn-floating removeProject float-right align-self-end" title="Remove">
+                            <i class="fa fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    `);
+
             if (isActive) activeTimers[project.id] = data.activeProjects[project.id].start;
             if (isBreakActive) breakTimers[project.id] = data.activeBreaks[project.id].start;
         });
-        $('.removeProject').on('click', (event) => {
-            let projectId = $(event.currentTarget).parent().data('project-id');
+
+        $('.changeHidden').on('click', ({currentTarget}) => {
+            let projectId = $(currentTarget).parent().data('project-id');
+            $.ajax({
+               url: '/project/change-hidden',
+               type: 'patch',
+               data: {id: projectId},
+               success: () => {
+                   refreshProjects();
+               }
+            });
+        })
+
+        $('.removeProject').on('click', ({currentTarget}) => {
+            let projectId = $(currentTarget).parent().data('project-id');
             //console.log(projectId);
             $.ajax({
                 url: '/project/remove',
@@ -111,8 +157,8 @@
             });
         });
 
-        $('.setActiveInactive').on('click', event => {
-            let parent = $(event.currentTarget).parent();
+        $('.setActiveInactive').on('click', ({currentTarget}) => {
+            let parent = $(currentTarget).parent();
             let projectId = parent.data("project-id");
             $.ajax({
                 url: '/project/change-active',
@@ -123,8 +169,8 @@
                 }
             });
         });
-        $('.startEndBreak').on('click', event => {
-            let parent = $(event.currentTarget).parent();
+        $('.startEndBreak').on('click', ({currentTarget}) => {
+            let parent = $(currentTarget).parent();
             let projectId = parent.data("project-id");
             $.ajax({
                 url: '/project/change-break',
