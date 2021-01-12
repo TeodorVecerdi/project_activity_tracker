@@ -50,29 +50,9 @@
 </div>
 
 <% include ../partials/footer.ejs %>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
+<% include ../partials/markdown.ejs %>
 <script src="/javascripts/utils.js"></script>
 <script>
-    marked.setOptions({
-        highlight: (code, language) => {
-            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-            let highlighted = hljs.highlightAuto(code);
-            let auto = true;
-            if (hljs.getLanguage(language)) {
-                highlighted = hljs.highlight(validLanguage, code);
-                auto = false;
-            }
-
-            let internalLanguage = hljs.getLanguage(highlighted.language).name;
-            return `<div class="code-block"><div class="lang-preview">${internalLanguage}${auto ? ' (auto-detected)': ''}</div><div class="code">${highlighted.value}</div></div>`;
-        },
-        smartLists: true,
-        xhtml: true
-    });
-
-    hljs.initHighlighting();
 
     let noteId = "<%= noteId %>";
     let lastCommittedTitle = undefined;

@@ -49,26 +49,10 @@
 </div>
 
 <% include ../partials/footer.ejs %>
+<% include ../partials/markdown.ejs %>
 
-<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
 <script src="/javascripts/utils.js"></script>
 <script>
-    marked.setOptions({
-        highlight: (code, language) => {
-            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-            if(hljs.getLanguage(language)) {
-                return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
-            }
-            return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
-        },
-        smartLists: true,
-        xhtml: true
-    });
-
-    hljs.initHighlighting();
-
     let projectMap = {};
     let activeProject = undefined;
     let selectInput = $('#selectProject');
@@ -385,11 +369,11 @@
         let todo = todoMap[todoId];
 
         let todoTitle = renderMarkdown(unescape(todo.text), true);
-        let todoDesc = renderMarkdown(unescape(todo.description) || "_No Description_");
+        let todoDesc = renderMarkdown(unescape(todo.description));
 
         todoEditor_titleInput.val(unescape(todo.text));
         todoEditor_titleInput_rendered.html(todoTitle);
-        todoEditor_descriptionInput.val(unescape(todo.description) || "_No Description_");
+        todoEditor_descriptionInput.val(unescape(todo.description));
         todoEditor_descriptionInput_rendered.html(todoDesc);
     }
 
@@ -413,10 +397,7 @@
             }
         });
     }
-    function renderMarkdown(markdown, parseInline) {
-        if(parseInline) return DOMPurify.sanitize(marked.parseInline(markdown));
-        return DOMPurify.sanitize(marked(markdown));
-    }
+
     function saveTodoChanges() {
         console.log("Saving!");
         let title = todoEditor_titleInput.val();

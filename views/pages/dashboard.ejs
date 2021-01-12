@@ -273,7 +273,7 @@
         let totalDuration = 0;
         entries.forEach(entry => {
             let duration = entry.end - entry.start;
-            totalDuration += duration;
+            totalDuration += duration * (entry.type == 'WORK' ? 1 : -1);
             let start = formatDate(new Date(entry.start - 0));
             let end = formatDate(new Date(entry.end - 0));
             let durationString = millisToDuration(duration)

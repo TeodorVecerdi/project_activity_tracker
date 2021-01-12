@@ -23,25 +23,9 @@
 </div>
 
 <% include ../partials/footer.ejs %>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.5.0/build/highlight.min.js"></script>
+<% include ../partials/markdown.ejs %>
 
 <script>
-    marked.setOptions({
-        highlight: (code, language) => {
-            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-            if(hljs.getLanguage(language)) {
-                return `<div class="code-block">${hljs.highlight(validLanguage, code).value}</div>`;
-            }
-            return `<div class="code-block">${hljs.highlightAuto(code).value}</div>`;
-        },
-        smartLists: true,
-        xhtml: true
-    });
-
-    hljs.initHighlighting();
-
     let projectMap = {};
     let noteId = "<%= noteId %>";
     let note = {};
