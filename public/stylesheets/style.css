@@ -492,13 +492,17 @@
   color: #ffc108;
 }
 
-p > code {
+p > code, li > code, h1 > code, h2 > code, h3 > code, h4 > code, h5 > code, h6 > code, em > code, strong > code, del > code {
   background-color: #282c34;
   padding: 0.45rem 0.6rem;
   margin-left: 0.25rem;
   margin-right: 0.25rem;
   border-radius: 8px;
   color: #ffc108;
+}
+
+del > code {
+  color: #fa291e;
 }
 
 /*# sourceMappingURL=style.css.map */

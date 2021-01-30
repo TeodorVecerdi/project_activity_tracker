@@ -23,7 +23,7 @@
     hljs.initHighlighting();
 
     function renderMarkdown(markdown, parseInline) {
-        if(parseInline) return DOMPurify.sanitize(marked.parseInline(markdown));
-        return DOMPurify.sanitize(marked(markdown));
+        if(parseInline) return `<markdown>${DOMPurify.sanitize(marked.parseInline(markdown))}</markdown>`;
+        return `<markdown>${DOMPurify.sanitize(marked(markdown))}</markdown>`;
     }
 </script>
